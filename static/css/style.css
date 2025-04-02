@@ -1,0 +1,59 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: "Montserrat", serif;
+}
+
+body {
+	background-color: rgb(255, 255, 255);
+}
+
+.navBar {
+	background-color: #1e2705;
+	color: white;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 2rem;
+}
+
+.nav-dir,
+a {
+	color: white;
+	display: flex;
+	list-style: none;
+	margin-left: auto;
+}
+
+.nav-dir li {
+	margin-left: 1rem;
+}
+
+.introduction {
+	width: 100%;
+	height: 65vh;
+	background-image: url(/src/img/pytertest1920720.png);
+	background-repeat: no-repeat;
+	background-size: cover;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	padding-top: 50px;
+	position: center;
+}
+
+.introduction::before {
+	position: absolute;
+	z-index: 1;
+}
+
+.intro-content {
+	color: rgb(255, 255, 225);
+	font-size: 32px;
+}
+
+.text-apresentation {
+}
