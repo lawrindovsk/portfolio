@@ -6,7 +6,9 @@
 }
 
 body {
-	background-color: rgb(255, 255, 255);
+	/*background-color: rgb(255, 255, 255);*/
+	background-color: #1e2705;
+	color: white;
 }
 
 .navBar {
@@ -55,5 +57,64 @@ a {
 	font-size: 32px;
 }
 
-.text-apresentation {
+#tAboutMe::after {
+	content: "";
+	display: block;
+	width: 60px;
+	height: 4px;
+	background-color: #00adb5; /* corzinha de destaque */
+	margin: 0.5rem auto 0;
+	border-radius: 2px;
+}
+
+#tAboutMe {
+	text-align: center;
+	font-size: 2.5rem; /* tamanho grande */
+	font-weight: 700; /* bem destacado */
+	margin-bottom: 2rem;
+	color: white; /* opcional: cor neutra e legível */
+	font-family: "Montserrat", sans-serif; /* mantém o padrão da tua fonte */
+}
+
+.about {
+	padding: 2rem;
+}
+
+.about-container {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 2rem;
+	flex-wrap: wrap; /* ajuda a evitar bugs em telas menores */
+}
+
+.my-photo {
+	width: 300px;
+	height: auto;
+	border-radius: 12px;
+}
+
+.div-class-text-about {
+	max-width: 600px;
+	text-align: left;
+	font-size: 1rem;
+	line-height: 1.6;
+}
+
+.about-text {
+	white-space: normal;
+}
+
+@media (max-width: 768px) {
+	.about-container {
+		flex-direction: column;
+		align-items: center;
+		text-align: left;
+		justify-content: center;
+	}
+
+	.div-class-text-about {
+		text-align: center;
+	}
 }
