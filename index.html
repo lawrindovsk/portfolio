@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+<!-- Start Head -->
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,24 +12,32 @@
 			href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
 			rel="stylesheet"
 		/>
-		<style>
-			@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-		</style>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 	</head>
-	<body>
-		<header>
-			<div>
-				<nav class="navBar">
-					<h1>Laurindo.</h1>
-					<ul class="nav-dir">
-						<li><a href="#home">Home</a></li>
-						<li><a href="#about">About</a></li>
-						<li><a href="#contacts">Contacts</a></li>
-					</ul>
-				</nav>
-			</div>
-		</header>
+<!-- End Head -->
 
+<!-- Start Header -->
+<header>
+	<div>
+		<nav class="navBar">
+			<h1>Laurindo.</h1>
+			<ul class="nav-dir">
+				<li><a href="#tAboutMe">About</a></li>
+				<li><a href="#tGeneralSkills">Skills</a></li>
+				<li><a href="">Certificates</a></li>
+				<li><a href="">Projects</a></li>
+				<li><a href="">Contacts</a></li>
+			</ul>
+		</nav>
+	</div>
+</header>
+<!-- End Header -->
+
+<!-- Start Main Application -->
+	<main>
+	<body>
+		<!-- Introdution -->
 		<section class="introduction">
 			</div>
 			<div class="intro-content">
@@ -43,9 +52,97 @@
 					</div>
 				</div>
 		</section>
-
+		<!-- End Introdution -->
+		<br>
+		<!--  About Me -->
 		<section class="about">
-		
+			<h2 id="tAboutMe">About me</h2>
+			<div class="about-container">
+				<img src="/src/img/eu 1.jpg" alt="my-photo1" class="my-photo" />
+				<div class="div-class-text-about">
+					<p class="about-text">
+						Since I was a child, I have always been passionate about technology and video games. When I grew up, I decided to enter this world that always caught my attention and held me for hours, Technology.
+						I believe that technology has the power totransform the world if used correctly, startingfrom the beginning of life, and with that in mind I want to be able to contribute to the opportunities that arise.
+						I am currently studying Computer Engineering at São Judas Tadeu University and I decided to venture into the world of programming.
+						But I have a lot of knowledge and experience in Infrastructure and IT Support, and I dont turn down opportunities.
+					</p>
+				</div>
+			</div>
 		</section>
+	<!-- End About Me -->
+
+	<section class="general-carousel">
+		<h2 id="tGeneralSkills">General Skills</h2>
+		<div class="carousel-container">
+			<div class="carousel">
+				<div class="card">
+					<h3>Technical Support</h3>
+					<p>Experience in troubleshooting, hardware/software maintenance, and user support.</p>
+				</div>
+				<div class="card">
+					<h3>Infrastructure</h3>
+					<p>Knowledge in network setup, server management, and IT infrastructure optimization.</p>
+				</div>
+				<div class="card">
+					<h3>Front-End Development</h3>
+					<p>Proficient in HTML, CSS, JavaScript, and frameworks like Bootstrap.</p>
+				</div>
+				<div class="card">
+					<h3>Back-End Development</h3>
+					<p>Experience with C#, .NET, and database management using MySQL.</p>
+				</div>
+				<div class="card">
+					<h3>Kanban Methodology</h3>
+					<p>Skilled in agile project management and task organization using Kanban boards.</p>
+				</div>
+			</div>
+			
+		</div>
+	</section>
+
+	<script>
+		const carousel = document.querySelector('.carousel');
+
+		let scrollAmount = 0;
+
+		prevBtn.addEventListener('click', () => {
+			carousel.scrollBy({ left: -300, behavior: 'smooth' });
+		});
+
+		nextBtn.addEventListener('click', () => {
+			carousel.scrollBy({ left: 300, behavior: 'smooth' });
+		});
+	</script>
+
+		<section id="programming-skills">
+			<h2 id="tProSkills">Programming Skills</h2>
+			<div class="icons-skills">
+                <ul>
+                    <li> <img src="https://img.icons8.com/color/90/git.png" alt="Git"></li>
+                    <li><img src="https://img.icons8.com/ios-glyphs/90/github.png" alt="GitHub"></li>
+                    <li><img src="https://img.icons8.com/color/90/html-5--v1.png" alt="HTML5"></li>
+                    <li><img src="https://img.icons8.com/color/90/css3.png" alt="CSS3"></li>
+					<li><img src="https://img.icons8.com/color/90/bootstrap--v2.png" alt="Bootstrap"></li>
+					<li><img src="https://img.icons8.com/?size=90&amp;id=55251&amp;format=png&amp;color=000000" alt="C#"></li>
+					<li><img src="https://img.icons8.com/?size=100&id=1BC75jFEBED6&format=png&color=000000" alt=".NET"></li>
+					<li><img src="https://img.icons8.com/?size=90&amp;id=UFXRpPFebwa2&amp;format=png&amp;color=000000" alt="MYSQL"></li>
+                </ul>
+            </div>
+		</section>
+		<!-- Link Scripts -->
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
 	</body>
+</main>
+<!-- End Main Application -->
+<!-- Footer -->
+<footer>
+	<p>© 2025 Gustavo Laurindo dos Santos</p>
+	<div id=" social-media">
+		<ul>
+			<li><a href="https://wa.me/5511979669066" target="_blank"><i class="bi bi-whatsapp"></i></a></li>
+			<li><a href="https://www.linkedin.com/in/gustavolaurindoss/" target="_blank"><i class="bi bi-linkedin"></i></a></li>
+			<li><a href="https://github.com/lawrindovsk" target="_blank"><i class="bi bi-github"></i></a></li>
+		</ul>
+	</div>
+</footer>
 </html>
