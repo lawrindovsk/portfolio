@@ -37,6 +37,10 @@ if (container) {
 		return mesh;
 	};
 
+	// caixa invisível que aumenta a área de clique/toque de um objeto
+	const hitMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
+	const hitbox = (parent, w, h, d, y = h / 2) => place(parent, new THREE.Mesh(new THREE.BoxGeometry(w, h, d), hitMat), 0, y, 0);
+
 	/* =========================================================
 	   Terreno
 	   ========================================================= */
@@ -53,7 +57,8 @@ if (container) {
 	const heights = new Map();
 	const key = (x, z) => `${x},${z}`;
 	for (let x = -W; x <= W; x++) {
-		for (let z = -D; z <= D; z++) {
+		// o terreno se estende para a frente para cobrir a parte de baixo em telas em pé
+		for (let z = -D; z <= D + 10; z++) {
 			const far = Math.max(0, -z - 4) * 0.6 + Math.max(0, Math.abs(x) - 13) * 0.45;
 			const noise = Math.sin(x * 0.7) * Math.cos(z * 0.9) + Math.sin(x * 0.23 + z * 0.4);
 			const hill = far > 0 ? Math.max(0, Math.round(far + noise * 0.8)) : 0;
@@ -259,6 +264,9 @@ if (container) {
 	duck.rotation.y = -0.8;
 	scene.add(duck);
 
+	for (const o of [food.group, drink.group, bone, duck]) hitbox(o, 1.1, 0.9, 1.1);
+	hitbox(ball, 0.9, 0.9, 0.9, 0);
+
 	interactive.push(
 		{ obj: food.group, task: "eat" },
 		{ obj: drink.group, task: "drink" },
@@ -315,14 +323,109 @@ if (container) {
 	place(tail, box(0.11, 0.18, 0.11, WHITE), -0.06, 0.34, 0).rotation.z = 0.5;
 	tail.rotation.z = 0.7;
 
+	hitbox(dog, 1.9, 1.9, 1.3); // área de clique/toque generosa, boa para o dedo no celular
 	dog.scale.setScalar(1.15);
 	dog.position.set(0, S, 1.5);
 	scene.add(dog);
 
 	/* =========================================================
+	   Reações ao carinho (clique/toque no Pyter)
+	   Cada clique seguido avança uma reação: feliz, coração, estrelinha, música, susto, amor.
+	   ========================================================= */
+	const PIXEL_ICONS = {
+		feliz: { colors: { y: "#ffd23f", k: "#222" }, rows: [
+			"..yyyyy..", ".yyyyyyy.", "yykyyykyy", "yykyyykyy", "yyyyyyyyy", "ykyyyyyky", "yykkkkkyy", ".yyyyyyy.", "..yyyyy..",
+		] },
+		coracao: { colors: { r: "#ff3b6b", w: "#ffd1dc" }, rows: [
+			".rr...rr.", "rwrr.rrrr", "rwrrrrrrr", "rrrrrrrrr", "rrrrrrrrr", ".rrrrrrr.", "..rrrrr..", "...rrr...", "....r....",
+		] },
+		estrela: { colors: { y: "#ffcf26", w: "#fff6c2" }, rows: [
+			"....y....", "....y....", "...yyy...", "yyyywyyyy", ".yyywyyy.", "..yyyyy..", "..yy.yy..", ".yy...yy.", ".y.....y.",
+		] },
+		musica: { colors: { k: "#3b3b8f" }, rows: [
+			"....kkkkk", "....kkkkk", "....k...k", "....k...k", "....k...k", ".kkkk.kkk", "kkkkkkkkk", "kkkk.kkkk", ".kk...kk.",
+		] },
+		susto: { colors: { r: "#ff4d4d" }, rows: [
+			"...rrr...", "...rrr...", "...rrr...", "...rrr...", "...rrr...", "....r....", ".........", "...rrr...", "...rrr...",
+		] },
+		amor: { colors: { r: "#ff3b6b", p: "#ff8fb1" }, rows: [
+			"rr.rr....", "rrrrr....", ".rrr.pp.p", "..r..pppp", ".....ppp.", "......p..", ".........", ".........", ".........",
+		] },
+	};
+	PIXEL_ICONS.duvida = { colors: { b: "#3b82f6" }, rows: [
+		"..bbbbb..", ".bb...bb.", ".bb...bb.", "......bb.", "....bbb..", "...bb....", "...bb....", ".........", "...bb....",
+	] };
+	const REACTIONS = ["feliz", "coracao", "estrela", "musica", "susto", "amor"];
+
+	// desenha o balão de fala em pixel art num canvas 24x24 (ampliado sem suavizar)
+	const bubbleTexture = (iconName) => {
+		const c = document.createElement("canvas");
+		c.width = c.height = 24;
+		const g = c.getContext("2d");
+		const px = (x, y, w, h, color) => {
+			g.fillStyle = color;
+			g.fillRect(x, y, w, h);
+		};
+		px(3, 1, 18, 1, "#222");
+		px(3, 18, 18, 1, "#222");
+		px(2, 2, 1, 16, "#222");
+		px(21, 2, 1, 16, "#222");
+		px(3, 2, 18, 16, "#fff");
+		// rabinho do balão
+		px(9, 19, 4, 1, "#222");
+		px(10, 19, 2, 1, "#fff");
+		px(10, 20, 3, 1, "#222");
+		px(11, 20, 1, 1, "#fff");
+		px(11, 21, 2, 1, "#222");
+		const icon = PIXEL_ICONS[iconName];
+		icon.rows.forEach((row, y) =>
+			[...row].forEach((ch, x) => {
+				if (icon.colors[ch]) px(7 + x, 5 + y, 1, 1, icon.colors[ch]);
+			}),
+		);
+		const tex = new THREE.CanvasTexture(c);
+		tex.magFilter = THREE.NearestFilter;
+		tex.minFilter = THREE.NearestFilter;
+		tex.colorSpace = THREE.SRGBColorSpace;
+		return tex;
+	};
+	const bubbleTextures = Object.fromEntries(REACTIONS.map((r) => [r, bubbleTexture(r)]));
+	const bubble = new THREE.Sprite(new THREE.SpriteMaterial({ map: bubbleTextures.feliz, depthTest: false, transparent: true, fog: false }));
+	bubble.renderOrder = 10;
+	bubble.visible = false;
+	scene.add(bubble);
+	const bubbleState = { t: 0, life: 0 };
+
+	const showBubble = (name) => {
+		bubble.material.map = bubbleTextures[name];
+		bubble.material.needsUpdate = true;
+		bubble.visible = true;
+		bubbleState.t = 0;
+		bubbleState.life = 2.2;
+	};
+	const updateBubble = (dt) => {
+		if (!bubble.visible) return;
+		bubbleState.t += dt;
+		const t = bubbleState.t;
+		// "pop" com leve exagero, depois flutua e some
+		const pop = t < 0.25 ? THREE.MathUtils.lerp(0, 1.15, t / 0.25) : t < 0.4 ? THREE.MathUtils.lerp(1.15, 1, (t - 0.25) / 0.15) : 1;
+		bubble.scale.setScalar(1.8 * pop);
+		bubble.position.set(dog.position.x, dog.position.y + 2.8 + t * 0.15, dog.position.z);
+		bubble.material.opacity = t > bubbleState.life - 0.4 ? Math.max(0, (bubbleState.life - t) / 0.4) : 1;
+		if (t > bubbleState.life) bubble.visible = false;
+	};
+
+	let petCount = 0;
+	let lastPet = -10;
+
+	/* =========================================================
 	   Comportamento
 	   ========================================================= */
 	const flat = (x, z) => ({ x: THREE.MathUtils.clamp(x, FLAT.x0, FLAT.x1), z: THREE.MathUtils.clamp(z, FLAT.z0, FLAT.z1) });
+	const inside = (v) => ({
+		get x() { return THREE.MathUtils.clamp(v.x, FLAT.x0 + 0.6, FLAT.x1 - 0.6); },
+		get z() { return THREE.MathUtils.clamp(v.z, FLAT.z0 + 0.6, FLAT.z1 - 0.6); },
+	});
 	const randomSpot = () => {
 		for (;;) {
 			const p = { x: rand(FLAT.x0 + 1, FLAT.x1 - 1), z: rand(FLAT.z0 + 0.5, FLAT.z1 - 0.5) };
@@ -342,15 +445,25 @@ if (container) {
 		switch (type) {
 			case "eat": task = { type, target: bowlFront(food), face: food.group.position }; break;
 			case "drink": task = { type, target: bowlFront(drink), face: drink.group.position }; break;
-			case "ball": task = { type, target: ball.position, run: true, face: ball.position }; break;
+			case "ball": task = { type, target: inside(ball.position), run: true, face: ball.position }; break;
 			case "duck": task = { type, target: { x: duck.position.x - 0.8, z: duck.position.z }, face: duck.position }; break;
-			case "bone": task = { type, target: carrying ? randomSpot() : bone.position, face: bone.position }; break;
+			case "bone": task = { type, target: carrying ? randomSpot() : inside(bone.position), face: bone.position }; break;
 			case "sit": task = { type, dur: rand(3, 5) }; break;
 			case "sleep": task = { type, dur: rand(12, 20) }; break;
+			case "react": task = { type, dur: 2 }; break;
 			default: task = { type: "walk", target: randomSpot() };
 		}
 		task.t = 0;
 		task.phase = task.target ? "go" : "do";
+	};
+
+	const petDog = (now) => {
+		petCount = now - lastPet < 1.6 ? petCount + 1 : 1;
+		lastPet = now;
+		const kind = REACTIONS[(petCount - 1) % REACTIONS.length];
+		showBubble(kind);
+		setTask("react");
+		task.kind = kind;
 	};
 
 	const chooseNext = () => {
@@ -380,7 +493,7 @@ if (container) {
 		carrying = null;
 	}
 
-	const kickBall = (power = 5) => {
+	const kickBall = (power = 4.5) => {
 		const a = heading + rand(-0.5, 0.5);
 		ball.userData.vel.set(Math.cos(a) * power, rand(2, 3.5), -Math.sin(a) * power);
 	};
@@ -396,7 +509,14 @@ if (container) {
 	};
 
 	// pose atual, suavizada a cada frame
-	const pose = { sit: 0, lie: 0, eat: 0, jump: 0, walk: 0, eyes: 1 };
+	const pose = { sit: 0, lie: 0, eat: 0, jump: 0, walk: 0, eyes: 1, tilt: 0, wag: 0, sway: 0 };
+	let spin = 0; // giro extra (estrelinha)
+	let roll = 0; // cambalhota (amor)
+	// fases acumuladas: mudar de ritmo (andar/correr/parar) não faz as patas "pularem"
+	let gait = 0;
+	let wagPhase = 0;
+	let hovering = false;
+	let shake = 0; // sacudida de cabeça ao bater na parede
 	const goal = { ...pose };
 
 	const updateDog = (dt, t) => {
@@ -429,9 +549,17 @@ if (container) {
 					}
 				}
 				const p = flat(nx, nz);
+				const moved = Math.hypot(p.x - dog.position.x, p.z - dog.position.z);
 				dog.position.x = p.x;
 				dog.position.z = p.z;
 				goal.walk = task.run ? 1.6 : 1;
+				// bateu na parede (borda da área ou lago): para de "andar no lugar" e reage
+				task.stuck = moved < speed * dt * 0.35 ? (task.stuck || 0) + dt : 0;
+				if (task.stuck > 0.2) {
+					if (carrying) dropBone();
+					showBubble("duvida");
+					task = { type: "bump", phase: "do", t: 0, dur: 1.8, back: heading + Math.PI };
+				}
 			}
 		} else {
 			task.t += dt;
@@ -468,6 +596,50 @@ if (container) {
 						task = { type: "sit", phase: "do", dur: 2.5, t: 0 };
 					}
 					break;
+				case "bump": {
+					// passinho para trás, sacode a cabeça, senta e vira para o outro lado
+					if (task.t < 0.35) {
+						const q = flat(dog.position.x - Math.cos(heading) * dt * 1.2, dog.position.z + Math.sin(heading) * dt * 1.2);
+						if (!nearLake(q.x, q.z, 0.6)) {
+							dog.position.x = q.x;
+							dog.position.z = q.z;
+						}
+						goal.walk = 0.5;
+					} else if (task.t < 1.1) {
+						goal.sit = 0.6;
+						shake = Math.sin(task.t * 22) * 0.35;
+					} else {
+						turnToward(task.back, dt, 5);
+					}
+					if (task.t > task.dur) setTask("walk");
+					break;
+				}
+				case "react": {
+					// vira para quem clicou (a câmera)
+					turnToward(angleTo(dog.position, camera.position), dt, 8);
+					goal.wag = 1;
+					const k = task.kind;
+					if (k === "feliz") goal.jump = task.t < 0.8 ? 1 : 0;
+					if (k === "coracao") {
+						goal.sit = 1;
+						goal.tilt = 1;
+						goal.eyes = 0.35; // olhinhos fechados de felicidade
+					}
+					if (k === "estrela") spin = Math.min(1, task.t / 0.9) * Math.PI * 2;
+					if (k === "musica") goal.sway = 1;
+					if (k === "susto") goal.jump = task.t < 0.5 ? 1.6 : 0;
+					if (k === "amor") {
+						goal.lie = task.t > 0.3 && task.t < 1.7 ? 1 : 0;
+						roll = THREE.MathUtils.clamp((task.t - 0.4) / 1.1, 0, 1) * Math.PI * 2;
+						goal.eyes = 0.35;
+					}
+					if (task.t > task.dur) {
+						spin = 0;
+						roll = 0;
+						task = null;
+					}
+					break;
+				}
 				case "sit":
 					goal.sit = 1;
 					if (task.t > task.dur) task = null;
@@ -487,7 +659,9 @@ if (container) {
 		const k = Math.min(1, dt * 6);
 		for (const p in pose) pose[p] += (goal[p] - pose[p]) * k;
 
-		const stride = Math.sin(t * (8 + pose.walk * 4)) * Math.min(1, pose.walk);
+		if (hovering && !task) goal.wag = 1;
+		gait += dt * (7 + pose.walk * 3.5);
+		const stride = Math.sin(gait) * Math.min(1, pose.walk);
 		const lie = pose.lie;
 		legs[0].rotation.z = stride * 0.65 + lie * 1.35;
 		legs[1].rotation.z = -stride * 0.65 + lie * 1.35;
@@ -495,21 +669,26 @@ if (container) {
 		legs[3].rotation.z = stride * 0.65 - lie * 1.35 - pose.sit * 1.2;
 
 		const hop = pose.jump * Math.abs(Math.sin(t * 9)) * 0.45;
-		rig.position.y = Math.abs(stride) * 0.04 - lie * 0.3 - pose.sit * 0.12 + hop;
+		rig.position.y = Math.abs(Math.sin(gait)) * 0.04 * Math.min(1, pose.walk) - lie * 0.3 - pose.sit * 0.12 + hop;
 		rig.rotation.z = pose.sit * 0.42;
+		rig.rotation.x = roll + Math.sin(t * 8) * 0.18 * pose.sway;
+		rig.position.x = Math.sin(t * 8) * 0.12 * pose.sway;
 
 		head.rotation.z = -pose.eat * 0.75 + Math.sin(t * 7) * 0.07 * pose.eat - pose.sit * 0.3 + Math.sin(t * 2) * 0.04;
 		head.position.y = LEG + 0.62 - pose.eat * 0.12 - lie * 0.05;
-		head.rotation.y = lie * 0.25;
-		tail.rotation.x = Math.sin(t * (lie > 0.5 ? 2 : 14)) * (lie > 0.5 ? 0.1 : 0.55);
+		head.rotation.y = lie * 0.25 + shake;
+		shake *= 0.8;
+		head.rotation.x = pose.tilt * 0.35; // cabecinha de lado
+		wagPhase += dt * (lie > 0.5 ? 2 : 13 + pose.wag * 9);
+		tail.rotation.x = Math.sin(wagPhase) * (lie > 0.5 ? 0.1 : 0.5 + pose.wag * 0.25);
 		tongue.visible = pose.walk > 0.5 || pose.jump > 0.3 || pose.sit > 0.5;
 		const blink = Math.sin(t * 1.3) > 0.985 ? 0.1 : 1;
 		for (const e of eyes) e.scale.y = Math.min(pose.eyes, blink);
-		earL.rotation.x = 0.35 + Math.sin(t * 9) * 0.08 * pose.walk;
-		earR.rotation.x = -0.35 - Math.sin(t * 9) * 0.08 * pose.walk;
+		earL.rotation.x = 0.35 + Math.sin(gait * 2) * 0.06 * Math.min(1, pose.walk);
+		earR.rotation.x = -0.35 - Math.sin(gait * 2) * 0.06 * Math.min(1, pose.walk);
 
 		dog.position.y = S;
-		dog.rotation.y = heading;
+		dog.rotation.y = heading + spin;
 	};
 
 	const updateToys = (dt) => {
@@ -690,12 +869,20 @@ if (container) {
 			return o === i.obj;
 		});
 	};
+	interactive.push({ obj: dog, task: "pet" });
 	renderer.domElement.addEventListener("pointermove", (e) => {
-		renderer.domElement.style.cursor = pick(e) ? "pointer" : "";
+		if (e.pointerType !== "mouse") return;
+		const hit = pick(e);
+		hovering = hit?.task === "pet";
+		renderer.domElement.style.cursor = hit ? "pointer" : "";
 	});
+	renderer.domElement.addEventListener("pointerleave", () => (hovering = false));
+	// "click" funciona com mouse e com toque (tap) no celular, sem atrapalhar a rolagem
 	renderer.domElement.addEventListener("click", (e) => {
 		const hit = pick(e);
-		if (hit) setTask(hit.task);
+		if (!hit) return;
+		if (hit.task === "pet") petDog(clock.elapsedTime);
+		else setTask(hit.task);
 	});
 
 	/* =========================================================
@@ -708,9 +895,11 @@ if (container) {
 		const h = container.clientHeight;
 		renderer.setSize(w, h);
 		camera.aspect = w / h;
-		const narrow = w < 700;
-		camY = narrow ? 12 : 8;
-		camZ = narrow ? 28 : 20;
+		// telas em pé enxergam menos na horizontal: afasta a câmera para caber a área do Pyter
+		const aspect = w / h;
+		const back = aspect < 1.3 ? Math.min(12, (1.3 - aspect) * 13) : 0;
+		camY = 8 + back * 0.55;
+		camZ = 20 + back;
 		camera.position.set(0, camY, camZ);
 		camera.lookAt(0, 2.5, -2);
 		camera.updateProjectionMatrix();
@@ -727,6 +916,7 @@ if (container) {
 		const t = clock.elapsedTime;
 		updateDog(dt, t);
 		updateToys(dt);
+		updateBubble(dt);
 		for (const c of clouds) c.position.x = ((c.position.x + dt * 0.6 + 30) % 60) - 30;
 		for (const f of fireflies) {
 			const s = f.userData.seed;
@@ -734,15 +924,24 @@ if (container) {
 			f.position.y = 1.8 + Math.sin(t * 1.3 + s) * 0.5;
 			f.material.opacity = smooth(0.5, 1, night) * (0.5 + 0.5 * Math.sin(t * 3 + s));
 		}
-		camera.position.x += (mouseX * 4 - camera.position.x) * 0.03;
+		if (!reduceMotion) camera.position.x += (mouseX * 4 - camera.position.x) * 0.03;
 		camera.lookAt(0, 2.5, -2);
 		renderer.render(scene, camera);
 	};
 
-	if (reduceMotion) {
-		frame();
-	} else {
-		// pausa quando o início sai da tela
-		new IntersectionObserver(([e]) => renderer.setAnimationLoop(e.isIntersecting ? frame : null)).observe(container);
+	// ?debug expõe a posição do Pyter na tela para testes
+	if (new URLSearchParams(location.search).has("debug")) {
+		window.pyter = {
+			screen: () => {
+				const v = dog.position.clone().add(new THREE.Vector3(0, 0.8, 0)).project(camera);
+				const r = renderer.domElement.getBoundingClientRect();
+				return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
+			},
+			bubble: () => bubble.visible && bubble.material.map === bubbleTextures.duvida ? "duvida" : bubble.visible ? REACTIONS.find((k) => bubbleTextures[k] === bubble.material.map) : null,
+			task: () => task?.type ?? null,
+		};
 	}
+
+	// pausa quando o início sai da tela
+	new IntersectionObserver(([e]) => renderer.setAnimationLoop(e.isIntersecting ? frame : null)).observe(container);
 }
