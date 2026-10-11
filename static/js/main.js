@@ -84,13 +84,23 @@
 		});
 	});
 
-	// Brilho que segue o mouse nos cards
-	grid.addEventListener("pointermove", (e) => {
-		const card = e.target.closest(".project-card");
+	// Brilho que segue o mouse e leve inclinação 3D nos cards
+	const hoverCards = ".project-card, .skill-card, .cert-card";
+	document.addEventListener("pointermove", (e) => {
+		const card = e.target.closest?.(hoverCards);
 		if (!card) return;
 		const rect = card.getBoundingClientRect();
-		card.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-		card.style.setProperty("--my", `${e.clientY - rect.top}px`);
+		const x = e.clientX - rect.left;
+		const y = e.clientY - rect.top;
+		card.style.setProperty("--mx", `${x}px`);
+		card.style.setProperty("--my", `${y}px`);
+		const rx = (0.5 - y / rect.height) * 8;
+		const ry = (x / rect.width - 0.5) * 8;
+		card.style.setProperty("--tilt", `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-6px)`);
+	});
+	document.addEventListener("pointerout", (e) => {
+		const card = e.target.closest?.(hoverCards);
+		if (card && !card.contains(e.relatedTarget)) card.style.removeProperty("--tilt");
 	});
 
 	renderProjects();

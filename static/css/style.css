@@ -2,16 +2,18 @@
    Tokens
    ========================================================= */
 :root {
-	--bg: #0b1004;
-	--bg-alt: #10170a;
-	--surface: #151e0c;
-	--surface-hover: #1b2610;
-	--border: rgba(190, 242, 100, 0.12);
-	--text: #e8eedc;
-	--muted: #9ba68b;
-	--accent: #a3e635;
-	--accent-2: #00adb5;
-	--accent-soft: rgba(163, 230, 53, 0.12);
+	/* neutro (cinza) com azul-céu e areia, puxando as cores da paisagem */
+	--bg: #333333;
+	--bg-alt: #393939;
+	--surface: #3d3d3d;
+	--surface-hover: #444444;
+	--border: rgba(255, 255, 255, 0.09);
+	--text: #f0f0ee;
+	--muted: #b5b5b0;
+	--accent-rgb: 143, 211, 255;
+	--accent: rgb(var(--accent-rgb));
+	--accent-2: #f2c97d;
+	--accent-soft: rgba(var(--accent-rgb), 0.12);
 
 	--font-sans: "Montserrat", system-ui, sans-serif;
 	--font-mono: "Fira Code", ui-monospace, monospace;
@@ -139,7 +141,7 @@ svg.fill {
 
 .btn-primary:hover {
 	transform: translateY(-3px);
-	box-shadow: 0 10px 30px -8px rgba(163, 230, 53, 0.55);
+	box-shadow: 0 10px 30px -8px rgba(var(--accent-rgb), 0.55);
 }
 
 .btn-ghost {
@@ -230,7 +232,7 @@ svg.fill {
 }
 
 .header.is-scrolled {
-	background: rgba(11, 16, 4, 0.75);
+	background: rgba(51, 51, 51, 0.75);
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
 	border-color: var(--border);
@@ -342,8 +344,8 @@ svg.fill {
 	content: "";
 	position: absolute;
 	inset: auto 0 0;
-	height: 120px;
-	background: linear-gradient(transparent, var(--bg));
+	height: 220px;
+	background: linear-gradient(rgba(51, 51, 51, 0), rgba(51, 51, 51, 0.6) 55%, var(--bg));
 	pointer-events: none;
 }
 
@@ -353,9 +355,38 @@ svg.fill {
 	position: absolute;
 	inset: 0 0 auto;
 	height: 140px;
-	background: linear-gradient(rgba(11, 16, 4, 0.55), transparent);
+	background: linear-gradient(rgba(51, 51, 51, 0.55), transparent);
 	pointer-events: none;
 	z-index: 1;
+}
+
+.landscape-hud {
+	position: absolute;
+	left: 50%;
+	bottom: 86px;
+	translate: -50% 0;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.35rem;
+	font-family: var(--font-mono);
+	font-size: 0.78rem;
+	color: #fff;
+	text-align: center;
+	pointer-events: none;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+#skyClock {
+	padding: 0.3rem 0.8rem;
+	border-radius: 999px;
+	background: rgba(0, 0, 0, 0.28);
+	backdrop-filter: blur(6px);
+}
+
+.landscape-hint {
+	opacity: 0.85;
 }
 
 .landscape .scroll-down {
@@ -598,8 +629,9 @@ svg.fill {
 	padding: 7rem 0;
 }
 
+/* fundo alternado entra e sai em degradê, sem corte seco entre seções */
 .section-alt {
-	background: var(--bg-alt);
+	background: linear-gradient(var(--bg), var(--bg-alt) 18%, var(--bg-alt) 82%, var(--bg));
 }
 
 .section-title {
@@ -730,8 +762,8 @@ svg.fill {
 }
 
 .skill-card:hover {
-	transform: translateY(-6px);
-	border-color: rgba(163, 230, 53, 0.4);
+	transform: var(--tilt, translateY(-6px));
+	border-color: rgba(var(--accent-rgb), 0.4);
 	background: var(--surface-hover);
 }
 
@@ -824,14 +856,14 @@ svg.fill {
 	position: absolute;
 	inset: 0;
 	z-index: -1;
-	background: radial-gradient(400px circle at var(--mx) var(--my), rgba(163, 230, 53, 0.1), transparent 40%);
+	background: radial-gradient(400px circle at var(--mx) var(--my), rgba(var(--accent-rgb), 0.1), transparent 40%);
 	opacity: 0;
 	transition: opacity 0.3s;
 }
 
 .project-card:hover {
-	transform: translateY(-8px);
-	border-color: rgba(163, 230, 53, 0.4);
+	transform: var(--tilt, translateY(-8px));
+	border-color: rgba(var(--accent-rgb), 0.4);
 }
 
 .project-card:hover::before {
@@ -871,9 +903,9 @@ svg.fill {
 	font-family: var(--font-mono);
 	font-size: 3rem;
 	font-weight: 600;
-	color: rgba(163, 230, 53, 0.35);
-	background-image: linear-gradient(rgba(163, 230, 53, 0.06) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(163, 230, 53, 0.06) 1px, transparent 1px);
+	color: rgba(var(--accent-rgb), 0.35);
+	background-image: linear-gradient(rgba(var(--accent-rgb), 0.06) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(var(--accent-rgb), 0.06) 1px, transparent 1px);
 	background-size: 24px 24px;
 	transition: color 0.4s, letter-spacing 0.4s var(--ease);
 }
@@ -1046,8 +1078,8 @@ svg.fill {
 }
 
 .cert-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(163, 230, 53, 0.4);
+  transform: var(--tilt, translateY(-6px));
+  border-color: rgba(var(--accent-rgb), 0.4);
   background: var(--surface-hover);
 }
 
@@ -1109,7 +1141,7 @@ svg.fill {
 	top: 50%;
 	translate: -50% -50%;
 	border-radius: 50%;
-	background: radial-gradient(circle, rgba(163, 230, 53, 0.1), transparent 65%);
+	background: radial-gradient(circle, rgba(var(--accent-rgb), 0.1), transparent 65%);
 	z-index: -1;
 }
 
@@ -1189,7 +1221,7 @@ svg.fill {
 		align-items: center;
 		justify-content: center;
 		gap: 2rem;
-		background: rgba(11, 16, 4, 0.97);
+		background: rgba(51, 51, 51, 0.97);
 		backdrop-filter: blur(12px);
 		opacity: 0;
 		visibility: hidden;
@@ -1264,5 +1296,63 @@ svg.fill {
 
 	.reveal {
 		opacity: 1;
+	}
+}
+
+/* =========================================================
+   Hover vivo nos cards (static/js/main.js define --mx, --my e --tilt)
+   ========================================================= */
+.skill-card,
+.cert-card {
+	--mx: 50%;
+	--my: 50%;
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+}
+
+.skill-card::after,
+.cert-card::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: radial-gradient(320px circle at var(--mx) var(--my), rgba(var(--accent-rgb), 0.12), transparent 45%);
+	opacity: 0;
+	transition: opacity 0.3s;
+}
+
+.skill-card:hover::after,
+.cert-card:hover::after {
+	opacity: 1;
+}
+
+.skill-card,
+.cert-card,
+.project-card {
+	transition: transform 0.25s var(--ease), border-color 0.35s, background 0.35s, box-shadow 0.35s;
+	will-change: transform;
+}
+
+.skill-card:hover,
+.cert-card:hover,
+.project-card:hover {
+	box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6);
+}
+
+.timeline-item > * {
+	transition: transform 0.35s var(--ease);
+}
+
+.timeline-item:hover > h3,
+.timeline-item:hover > p {
+	transform: translateX(6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.skill-card:hover,
+	.cert-card:hover,
+	.project-card:hover {
+		transform: none;
 	}
 }
