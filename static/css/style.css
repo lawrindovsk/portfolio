@@ -118,3 +118,74 @@ a {
 		text-align: center;
 	}
 }
+
+.education,
+.projects {
+	padding: 2rem;
+}
+
+.section-title {
+	text-align: center;
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-bottom: 2rem;
+}
+
+.section-title::after {
+	content: "";
+	display: block;
+	width: 60px;
+	height: 4px;
+	background-color: #00adb5;
+	margin: 0.5rem auto 0;
+	border-radius: 2px;
+}
+
+.cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	gap: 1.5rem;
+	max-width: 900px;
+	margin: 0 auto;
+}
+
+.card {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.6rem;
+	margin: 0;
+	padding: 1.5rem;
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 12px;
+	background-color: rgba(255, 255, 255, 0.04);
+	text-decoration: none;
+	transition: border-color 0.2s, transform 0.2s;
+}
+
+a.card:hover {
+	border-color: #00adb5;
+	transform: translateY(-3px);
+}
+
+.card-subtitle {
+	opacity: 0.75;
+}
+
+.tag {
+	font-size: 0.75rem;
+	font-weight: 600;
+	padding: 0.25rem 0.7rem;
+	border-radius: 999px;
+	background-color: rgba(255, 255, 255, 0.12);
+}
+
+.tag-academic {
+	background-color: #00adb5;
+	color: #10160a;
+}
+
+.tag-personal {
+	background-color: #c9a227;
+	color: #10160a;
+}
