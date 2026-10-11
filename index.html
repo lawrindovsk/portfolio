@@ -3,110 +3,387 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Gustavo Laurindo - Portfolio</title>
-		<link rel="stylesheet" href="/static/css/style.css" />
+		<title>Gustavo Laurindo | Portfólio</title>
+		<meta
+			name="description"
+			content="Portfólio de Gustavo Laurindo — Suporte, Infraestrutura e Desenvolvimento. Projetos pessoais e para clientes."
+		/>
+
+		<!-- Open Graph: controla como o link aparece no LinkedIn / WhatsApp -->
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content="Gustavo Laurindo | Portfólio" />
+		<meta
+			property="og:description"
+			content="Suporte, Infraestrutura e Desenvolvimento. Veja meus projetos."
+		/>
+		<!-- Depois do deploy, adicione: <meta property="og:image" content="https://SEU-DOMINIO/src/img/og.png" /> -->
+
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+			href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Montserrat:wght@400;500;600;700;800&display=swap"
 			rel="stylesheet"
 		/>
-		<style>
-			@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-		</style>
+		<link rel="stylesheet" href="static/css/style.css" />
 	</head>
 	<body>
-		<header>
-			<div>
-				<nav class="navBar">
-					<h1>Laurindo.</h1>
-					<ul class="nav-dir">
-						<li><a href="#home">Home</a></li>
-						<li><a href="#about">About</a></li>
-						<li><a href="#education">Education</a></li>
-						<li><a href="#projects">Projects</a></li>
-						<li><a href="#contacts">Contacts</a></li>
-					</ul>
-				</nav>
-			</div>
+		<div class="scroll-progress" aria-hidden="true"></div>
+
+		<header class="header" id="header">
+			<nav class="nav container">
+				<a href="#home" class="logo">Laurindo<span>.</span></a>
+
+				<button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
+					<span></span><span></span><span></span>
+				</button>
+
+				<ul class="nav-links" id="navLinks">
+					<li><a href="#home" class="nav-link">Início</a></li>
+					<li><a href="#about" class="nav-link">Sobre</a></li>
+					<li><a href="#skills" class="nav-link">Skills</a></li>
+					<li><a href="#projects" class="nav-link">Projetos</a></li>
+					<li><a href="#experience" class="nav-link">Experiência</a></li>
+					<li><a href="#certifications" class="nav-link">Certificações</a></li>
+					<li><a href="#contact" class="nav-link">Contato</a></li>
+				</ul>
+			</nav>
 		</header>
 
-		<section class="introduction">
-			</div>
-			<div class="intro-content">
-				<div id="tTextIntro">
-					<h1 id="tNameTitle">Gustavo Laurindo</h1>
-					<h2>PORTFÓLIO</h2>
-					<div class="text-apresentation">
-						<p>
-							Welcome to my portfolio website!<br />Here, I'll share my story,
-							objectives, and more.
+		<main>
+			<!-- ============ PAISAGEM 3D ============ -->
+			<section class="landscape" id="home" aria-label="Paisagem em blocos com meu cachorro passeando">
+				<div class="landscape-canvas" id="hero3d"></div>
+				<div class="landscape-hud">
+					<span id="skyClock">São Paulo</span>
+					<span class="landscape-hint">Clique num brinquedo ou num pote para chamar o Pyter</span>
+				</div>
+				<a href="#intro" class="scroll-down" aria-label="Rolar para a apresentação"><span></span></a>
+			</section>
+
+			<!-- ============ HERO ============ -->
+			<section class="hero" id="intro">
+				<div class="hero-bg" aria-hidden="true">
+					<div class="blob blob-1"></div>
+					<div class="blob blob-2"></div>
+					<div class="grid-pattern"></div>
+				</div>
+
+				<div class="container hero-inner">
+					<div class="hero-text">
+						<p class="eyebrow reveal">Olá, eu sou</p>
+						<h1 class="hero-title reveal" style="--delay: 0.1s">Gustavo Laurindo</h1>
+						<p class="hero-role reveal" style="--delay: 0.2s">
+							<span class="mono">&gt;</span>
+							<span id="typed"></span><span class="caret" aria-hidden="true"></span>
 						</p>
+						<p class="hero-desc reveal" style="--delay: 0.3s">
+							Da infraestrutura ao código: uso minha experiência em suporte, redes e servidores
+							para construir soluções web que funcionam de verdade, para mim e para clientes.
+						</p>
+
+						<div class="hero-cta reveal" style="--delay: 0.4s">
+							<a href="#projects" class="btn btn-primary">Ver projetos</a>
+							<a
+								href="src/docs/Curriculum%20-%20Gustavo%20Laurindo%20dos%20Santo.pdf"
+								class="btn btn-ghost"
+								download
+							>
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14" /></svg>
+								Baixar CV
+							</a>
+						</div>
+
+						<ul class="socials reveal" style="--delay: 0.5s">
+							<li>
+								<a href="https://github.com/lawrindovsk" target="_blank" rel="noopener" aria-label="GitHub">
+									<svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z" /></svg>
+								</a>
+							</li>
+							<li>
+								<!-- TODO: troque pelo seu usuário do LinkedIn -->
+								<a href="https://www.linkedin.com/in/SEU-USUARIO" target="_blank" rel="noopener" aria-label="LinkedIn">
+									<svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.3V9h3.4v1.6c.5-.9 1.6-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.5v6.2ZM5.3 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2Zm1.8 13.1H3.5V9h3.6v11.5ZM22.2 0H1.8C.8 0 0 .8 0 1.7v20.6c0 .9.8 1.7 1.8 1.7h20.4c1 0 1.8-.8 1.8-1.7V1.7C24 .8 23.2 0 22.2 0Z" /></svg>
+								</a>
+							</li>
+							<li>
+								<a href="mailto:gustavo.laurindo.santos@hotmail.com" aria-label="E-mail">
+									<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+								</a>
+							</li>
+						</ul>
+					</div>
+
+				</div>
+
+			</section>
+
+			<!-- ============ SOBRE ============ -->
+			<section class="section" id="about">
+				<div class="container">
+					<h2 class="section-title reveal"><span class="mono">01.</span> Sobre mim</h2>
+
+					<div class="about-grid">
+						<div class="about-photo reveal">
+							<img src="src/img/profile.jpg" alt="Foto de Gustavo Laurindo" width="800" height="800" loading="lazy" />
+						</div>
+
+						<div class="about-text">
+							<p class="reveal">
+								Desde criança sou apaixonado por tecnologia e videogames. Quando cresci, decidi entrar
+								de vez nesse mundo que sempre prendeu minha atenção por horas.
+							</p>
+							<p class="reveal">
+								Hoje sou <strong>Analista de Tecnologia no Grupo Comporte</strong>, responsável por
+								Google Workspace (Admin Console), GLPI, ITSM com ITIL e infraestrutura de TI. Antes,
+								atuei com <strong>atendimento N1/N2 e Active Directory</strong> na Stefanini, para o
+								Grupo Comporte, e como técnico alocado na Tecnocomp, para Mercedes-Benz e Wheaton Brasil.
+							</p>
+							<p class="reveal">
+								Em paralelo, curso <strong>Engenharia da Computação na São Judas</strong> e estou
+								mergulhando no desenvolvimento: JavaScript, C#, Python, Java (Spring Boot) e SQL.
+								Acredito que a tecnologia tem o poder de transformar o mundo quando usada do jeito
+								certo, e quero fazer parte disso.
+							</p>
+
+							<ul class="stats">
+								<li class="reveal"><strong data-count="3">0</strong><span>anos em TI</span></li>
+								<li class="reveal" style="--delay: 0.1s"><strong data-count="8">0</strong><span>certificações</span></li>
+								<li class="reveal" style="--delay: 0.2s"><strong data-count="4">0</strong><span>empresas atendidas</span></li>
+							</ul>
+						</div>
 					</div>
 				</div>
-		</section>
-		<br>
-	
-		<section class="about">
-			<h2 id="tAboutMe">About me</h2>
-			<div class="about-container">
-				<img src="/src/img/eu 1.jpg" alt="my-photo1" class="my-photo" />
-		
-				<div class="div-class-text-about">
-					<p class="about-text">
-						Hello, i am Gustavo Laurindo! :)
-						<br/><br>
-		
-						Since I was a child, I have always been passionate <br>about technology and video games. When I grew up, <br>I decided to enter this world that always caught my <br> attention and held me for hours, Technology.
-		
-						<br>
-		
-						<br>I believe that technology has the power to <br>transform the world if used correctly, starting <br>from the beginning of life, and with that in mind I <br>want to be able to contribute to the opportunities that arise.
-		
-						<br>
-		
-						<br>I am currently studying Computer Engineering at São <br>Judas Tadeu University and I decided to venture <br>into the world of programming.
-		
-						<br>
-		
-						<br>But I have a lot of knowledge and experience in <br>Networks, Infrastructure and IT Support, which you <br>can see up close in my professional resume or Linkedin, or better, here!
+			</section>
+
+			<!-- ============ SKILLS ============ -->
+			<section class="section section-alt" id="skills">
+				<div class="container">
+					<h2 class="section-title reveal"><span class="mono">02.</span> Skills</h2>
+
+					<div class="skills-grid">
+						<article class="skill-card reveal">
+							<div class="skill-icon">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="7" rx="1.5" /><rect x="3" y="14" width="18" height="7" rx="1.5" /><path d="M7 6.5h.01M7 17.5h.01" /></svg>
+							</div>
+							<h3>Infraestrutura &amp; Redes</h3>
+							<ul class="chips">
+								<li>Active Directory</li><li>Linux (RHEL/Ubuntu)</li><li>Windows Server</li>
+								<li>Google Workspace Admin</li><li>Redes Cisco</li><li>Backup / Veritas</li>
+									<li>Kaspersky / CrowdStrike</li><li>Clonezilla</li>
+							</ul>
+						</article>
+
+						<article class="skill-card reveal" style="--delay: 0.1s">
+							<div class="skill-icon">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" /></svg>
+							</div>
+							<h3>Desenvolvimento</h3>
+							<ul class="chips">
+								<li>HTML</li><li>CSS / Sass</li><li>JavaScript</li><li>C#</li>
+								<li>Python / Flask</li><li>Java / Spring Boot</li><li>PHP</li><li>SQL</li>
+									<li>Apps Script</li><li>Arduino / C++</li>
+							</ul>
+						</article>
+
+						<article class="skill-card reveal" style="--delay: 0.2s">
+							<div class="skill-icon">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11h6M9 15h4M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" /></svg>
+							</div>
+							<h3>Suporte &amp; Processos</h3>
+							<ul class="chips">
+								<li>Helpdesk N1/N2</li><li>ServiceNow</li><li>GLPI</li>
+								<li>Gestão de ativos</li><li>Rollout</li><li>Migração de sistemas</li>
+									<li>ITIL / ITSM</li><li>Change Management</li><li>Phishing response</li>
+							</ul>
+						</article>
+
+						<article class="skill-card skill-card-learning reveal" style="--delay: 0.3s">
+							<div class="skill-icon">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5L2 9Z" /><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" /></svg>
+							</div>
+							<h3>Estudando agora</h3>
+							<ul class="chips">
+								<li>.NET / ASP.NET Core</li><li>Angular</li><li>Git &amp; GitFlow</li>
+								<li>SOLID &amp; APIs</li><li>SQL &amp; NoSQL</li>
+							</ul>
+						</article>
+					</div>
+				</div>
+			</section>
+
+			<!-- ============ PROJETOS ============ -->
+			<section class="section" id="projects">
+				<div class="container">
+					<h2 class="section-title reveal"><span class="mono">03.</span> Projetos</h2>
+					<p class="section-sub reveal">
+						Projetos pessoais, acadêmicos e trabalhos entregues para clientes.
 					</p>
+
+					<div class="filters reveal" role="tablist" aria-label="Filtrar projetos">
+						<button class="filter is-active" data-filter="all" role="tab" aria-selected="true">Todos</button>
+						<button class="filter" data-filter="pessoal" role="tab" aria-selected="false">Pessoais</button>
+						<button class="filter" data-filter="cliente" role="tab" aria-selected="false">Clientes</button>
+					</div>
+
+					<!-- Os cards são gerados a partir de static/js/projects.js -->
+					<div class="projects-grid" id="projectsGrid"></div>
+				</div>
+			</section>
+
+			<!-- ============ EXPERIÊNCIA ============ -->
+			<section class="section section-alt" id="experience">
+				<div class="container">
+					<h2 class="section-title reveal"><span class="mono">04.</span> Experiência</h2>
+
+					<ol class="timeline">
+						<li class="timeline-item reveal">
+							<span class="timeline-date">05/2026 — Atual</span>
+							<h3>Analista de Tecnologia <span>@ Grupo Comporte</span></h3>
+							<p>
+								Responsável pela parte técnica dos ambientes Google Workspace (Admin Console), GLPI e infraestrutura de TI.
+								Administração de roteamento de e-mails, Drives Compartilhados, licenças e auditoria, com 2FA/MFA e resposta a
+								incidentes de phishing. Gestão de ITSM com ITIL, incluindo gestão de incidentes, requisições e Change Management.
+								Automação com Apps Script (Sheets como banco de dados), agentes com n8n, uso de IA (Gemini) e relatórios de
+								desempenho e auditoria de mudanças.
+							</p>
+						</li>
+						<li class="timeline-item reveal">
+							<span class="timeline-date">05/2025 — 05/2026</span>
+							<h3>Analista de Suporte JR <span>@ Stefanini IT Solutions (cliente Grupo Comporte)</span></h3>
+							<p>
+								Atendimento técnico N1/N2 presencial e remoto em nível Brasil, com foco em suporte e infraestrutura.
+								Administração de Google Workspace, Active Directory, 2FA/MFA e recuperação de dados. Mitigação de phishing e
+								análise de alertas de login, endpoints com Kaspersky e CrowdStrike, automação de imagens com ferramentas Dell
+								e documentação de chamados no GLPI.
+							</p>
+						</li>
+						<li class="timeline-item reveal">
+							<span class="timeline-date">2025 (período a confirmar)</span>
+							<h3>Suporte Técnico <span>@ Tecnocomp Tecnologia e Serviços</span></h3>
+							<p>
+								Técnico alocado nos clientes Mercedes-Benz do Brasil e Wheaton Brasil. Rollout de equipamentos, Active
+								Directory, helpdesk N1/N2 via ServiceNow e GLPI, clonagem de imagens e migração de sistemas.
+							</p>
+						</li>
+						<li class="timeline-item reveal">
+							<span class="timeline-date">06/2023 — 12/2024</span>
+							<h3>Auxiliar de Informática <span>@ Atacadão</span></h3>
+							<p>
+								CPD em equipe de 4 pessoas: servidores Windows (AD) e Linux via SSH, sistemas NF-e/NFC-e,
+								racks Lenovo/IBM, backup em fita com Veritas NetBackup e suporte N1 para a loja.
+							</p>
+						</li>
+						<li class="timeline-item reveal">
+							<span class="timeline-date">2024 — 2028</span>
+							<h3>Engenharia da Computação <span>@ Universidade São Judas Tadeu</span></h3>
+							<p>Cursando.</p>
+						</li>
+						<li class="timeline-item reveal">
+							<span class="timeline-date">Concluído</span>
+							<h3>Técnico em Informática <span>@ SENAC</span></h3>
+							<p>Curso técnico concluído, base em redes, hardware, sistemas operacionais e programação.</p>
+						</li>
+					</ol>
+
+					<h3 class="sub-title reveal">Projetos voluntários e freelas</h3>
+					<ul class="activity-list">
+						<li class="reveal">
+							<strong>Landing page para psicóloga</strong>
+							<span>Estruturada para divulgação profissional e captação de clientes.</span>
+						</li>
+						<li class="reveal" style="--delay: 0.1s">
+							<strong>API para sistema de delivery</strong>
+							<span>Java 21, Spring Boot, Spring Security/JWT e testes com JUnit/Mockito, para controle financeiro e pedidos de pequenos negócios.</span>
+						</li>
+						<li class="reveal" style="--delay: 0.2s">
+							<strong>Controle de ponto acessível</strong>
+							<span>Protótipo embarcado em Arduino (C++) com sensores de distância e I2C, pensado para pessoas com deficiência motora.</span>
+						</li>
+					</ul>
+				</div>
+			</section>
+
+			<!-- ============ CERTIFICAÇÕES ============ -->
+			<section class="section" id="certifications">
+				<div class="container">
+					<h2 class="section-title reveal"><span class="mono">05.</span> Certificações</h2>
+					<p class="section-sub reveal">Formação oficial reconhecida pelas instituições emissoras.</p>
+
+					<div class="cert-grid">
+						<article class="cert-card reveal">
+							<span class="cert-status">Certificado</span>
+							<h3>Oracle Cloud Infrastructure Certified Foundations Associate</h3>
+							<p class="cert-issuer">Oracle</p>
+						</article>
+						<article class="cert-card reveal" style="--delay: 0.05s">
+							<span class="cert-status">Certificado</span>
+							<h3>Associate Google Workspace Administrator</h3>
+							<p class="cert-issuer">Google</p>
+						</article>
+						<article class="cert-card cert-card-progress reveal" style="--delay: 0.1s">
+							<span class="cert-status">Em andamento</span>
+							<h3>Google Cloud Platform Foundations</h3>
+							<p class="cert-issuer">Google Cloud</p>
+						</article>
+						<article class="cert-card reveal" style="--delay: 0.15s">
+							<span class="cert-status">Certificado</span>
+							<h3>IT Essentials</h3>
+							<p class="cert-issuer">Cisco Networking Academy</p>
+						</article>
+						<article class="cert-card reveal" style="--delay: 0.2s">
+							<span class="cert-status">Certificado</span>
+							<h3>Network Essentials</h3>
+							<p class="cert-issuer">Cisco Networking Academy</p>
+						</article>
+						<article class="cert-card reveal" style="--delay: 0.25s">
+							<span class="cert-status">Certificado</span>
+							<h3>Cybersecurity Essentials</h3>
+							<p class="cert-issuer">Cisco Networking Academy</p>
+						</article>
+						<article class="cert-card reveal" style="--delay: 0.3s">
+							<span class="cert-status">Certificado</span>
+							<h3>JavaScript (JSE)</h3>
+							<p class="cert-issuer">OpenEDG JavaScript Institute</p>
+						</article>
+						<article class="cert-card reveal" style="--delay: 0.35s">
+							<span class="cert-status">Certificado</span>
+							<h3>Python (PCAP)</h3>
+							<p class="cert-issuer">OpenEDG Python Institute</p>
+						</article>
+						<article class="cert-card reveal" style="--delay: 0.4s">
+							<span class="cert-status">Certificado</span>
+							<h3>C# Fundamentals</h3>
+							<p class="cert-issuer">Balta.io</p>
+						</article>
+					</div>
+				</div>
+			</section>
+
+			<!-- ============ CONTATO ============ -->
+			<section class="section contact" id="contact">
+				<div class="container contact-inner">
+					<h2 class="section-title center reveal"><span class="mono">06.</span> Contato</h2>
+					<p class="contact-title reveal">Vamos construir algo juntos?</p>
+					<p class="contact-desc reveal">
+						Tem um projeto em mente, uma vaga ou só quer trocar uma ideia sobre tecnologia?
+						Minha caixa de entrada está sempre aberta.
 					</p>
+					<a href="mailto:gustavo.laurindo.santos@hotmail.com" class="btn btn-primary btn-lg reveal">
+						Diga olá 👋
+					</a>
 				</div>
-			</div>
-		</section>
+			</section>
+		</main>
 
-		<section class="education" id="education">
-			<h2 class="section-title">Education</h2>
-			<div class="cards">
-				<div class="card">
-					<h3>Computer Engineering</h3>
-					<p class="card-subtitle">São Judas Tadeu University</p>
-					<span class="tag">In progress</span>
-				</div>
-				<div class="card">
-					<h3>IT Technician (Técnico em Informática)</h3>
-					<p class="card-subtitle">Technical course</p>
-					<span class="tag">Completed</span>
-				</div>
+		<footer class="footer">
+			<div class="container footer-inner">
+				<p>© <span id="year"></span> Gustavo Laurindo. Feito à mão com HTML, CSS e JS.</p>
+				<a href="#home" class="back-top">Voltar ao topo ↑</a>
 			</div>
-		</section>
+		</footer>
 
-		<section class="projects" id="projects">
-			<h2 class="section-title">Projects</h2>
-			<div class="cards">
-				<a class="card" href="https://github.com/Leon16x8/saudedoidoso" target="_blank" rel="noopener noreferrer">
-					<h3>Saúde do Idoso</h3>
-					<p>Website developed for nursing graduates.</p>
-					<span class="tag tag-academic">Academic</span>
-				</a>
-				<a class="card" href="https://github.com/lawrindovsk/portfolio" target="_blank" rel="noopener noreferrer">
-					<h3>Personal Portfolio</h3>
-					<p>This website — my story, objectives and projects.</p>
-					<span class="tag tag-personal">Personal</span>
-				</a>
-			</div>
-		</section>
-
+		<script src="static/js/projects.js"></script>
+		<script src="static/js/main.js"></script>
+		<script type="module" src="static/js/hero3d.js"></script>
 	</body>
 </html>
