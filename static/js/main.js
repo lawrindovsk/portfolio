@@ -21,15 +21,6 @@
 	const escapeHtml = (str) =>
 		String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
-	const stopwords = new Set(["de", "da", "do", "das", "dos", "e", "para", "com", "o", "a"]);
-	const initials = (title) =>
-		title
-			.split(/\s+/)
-			.filter((w) => !stopwords.has(w.toLowerCase()))
-			.slice(0, 2)
-			.map((w) => w[0].toUpperCase())
-			.join("");
-
 	const icons = {
 		github:
 			'<svg viewBox="0 0 24 24" class="fill" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg>',
@@ -39,11 +30,7 @@
 
 	const typeLabels = { pessoal: "Pessoal", cliente: "Cliente", academico: "Acadêmico" };
 
-	const projectCard = (p, i) => {
-		const thumb = p.image
-			? `<img src="${escapeHtml(p.image)}" alt="" loading="lazy" />`
-			: `<span class="thumb-placeholder">${escapeHtml(initials(p.title))}</span>`;
-
+	const projectRow = (p, i) => {
 		const links = [
 			p.repo && `<a href="${escapeHtml(p.repo)}" target="_blank" rel="noopener" aria-label="Código de ${escapeHtml(p.title)}">${icons.github}</a>`,
 			p.demo && `<a href="${escapeHtml(p.demo)}" target="_blank" rel="noopener" aria-label="Abrir ${escapeHtml(p.title)}">${icons.external}</a>`,
@@ -52,37 +39,24 @@
 			.join("");
 
 		return `
-			<article class="project-card reveal${p.featured ? " is-featured" : ""}" data-type="${escapeHtml(p.type)}" style="--delay:${(i % 3) * 0.1}s">
-				<div class="project-thumb">${thumb}</div>
-				<div class="project-body">
-					<div class="project-head">
-						<span class="project-type">${typeLabels[p.type] || "Pessoal"}</span>
-						<div class="project-links">${links}</div>
-					</div>
+			<li class="project-row reveal${p.featured ? " is-featured" : ""}" data-type="${escapeHtml(p.type)}" style="--delay:${(i % 6) * 0.06}s">
+				<span class="project-type">${typeLabels[p.type] || "Pessoal"}</span>
+				<div class="project-main">
 					<h3>${escapeHtml(p.title)}</h3>
 					<p>${escapeHtml(p.description)}</p>
 					<ul class="chips small">${p.tags.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul>
 				</div>
-			</article>`;
+				<div class="project-links">${links}</div>
+			</li>`;
 	};
 
-	const renderProjects = (filter = "all") => {
-		const list = PROJECTS.filter((p) => filter === "all" || p.type === filter);
-		grid.innerHTML = list.length
-			? list.map(projectCard).join("")
-			: '<p class="empty">Nenhum projeto nesta categoria ainda. Em breve!</p>';
+	const renderProjects = () => {
+		grid.innerHTML = PROJECTS.length
+			? PROJECTS.map(projectRow).join("")
+			: '<li class="empty">Nenhum projeto por aqui ainda. Em breve!</li>';
 		observeReveals(grid);
 	};
 
-	document.querySelectorAll(".filter").forEach((btn) => {
-		btn.addEventListener("click", () => {
-			document.querySelectorAll(".filter").forEach((b) => {
-				b.classList.toggle("is-active", b === btn);
-				b.setAttribute("aria-selected", b === btn);
-			});
-			renderProjects(btn.dataset.filter);
-		});
-	});
 
 	// Brilho que segue o mouse e leve inclinação 3D nos cards
 	const hoverCards = ".project-card, .skill-card, .cert-card";
@@ -197,7 +171,43 @@
 	);
 	document.querySelectorAll("[data-count]").forEach((el) => countObserver.observe(el));
 
-	/* ---------- Diversos ---------- */
+	/* ---------- Certificados em pop-up ---------- */
+		const certModal = document.getElementById("certModal");
+		const certModalImg = document.getElementById("certModalImg");
+		const certModalTitle = document.getElementById("certModalTitle");
+
+		document.addEventListener("click", (e) => {
+			const trigger = e.target.closest("[data-cert]");
+			if (!trigger) return;
+			e.preventDefault();
+			certModalTitle.textContent = trigger.dataset.certTitle;
+			certModalImg.src = trigger.dataset.cert;
+			certModalImg.alt = trigger.dataset.certTitle;
+			certModal.showModal();
+		});
+
+		// Fecha com animação de saída (Esc, botão X ou clique fora)
+		const closeCert = () => {
+			if (!certModal.open || certModal.classList.contains("is-closing")) return;
+			if (reduceMotion) return certModal.close();
+			certModal.classList.add("is-closing");
+			certModal.addEventListener(
+				"animationend",
+				() => {
+					certModal.close();
+					certModal.classList.remove("is-closing");
+				},
+				{ once: true }
+			);
+		};
+		certModal.addEventListener("cancel", (e) => {
+			e.preventDefault();
+			closeCert();
+		});
+		certModal.querySelector(".cert-modal-close").addEventListener("click", closeCert);
+		certModal.addEventListener("click", (e) => e.target === certModal && closeCert());
+
+		/* ---------- Diversos ---------- */
 	document.getElementById("year").textContent = new Date().getFullYear();
 	observeReveals();
 })();

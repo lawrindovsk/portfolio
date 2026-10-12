@@ -6,7 +6,8 @@
  *   Para testar outro horário: ?hora=20 (ou 6.5, 18, ...).
  * Tudo é feito com caixas simples do Three.js, sem modelos externos.
  */
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import * as THREE from "../vendor/three.module.js"; // Three.js 0.160 (cópia local, sem depender de CDN)
+import { PIXEL_ICONS, REACTIONS } from "./hero/pixel-icons.js";
 
 const container = document.getElementById("hero3d");
 const clockLabel = document.getElementById("skyClock");
@@ -188,10 +189,10 @@ if (container) {
 		n++;
 	}
 	// algumas plantinhas na grama da área central, longe do caminho dos brinquedos
-	for (const [x, z] of [[-9, -1.5], [-8, 6], [2, 6.5], [10, -2], [-10, 3], [5, -2.4]]) sprout(x, z);
+	const CENTER_SPROUTS = [[-9, -1.5], [-8, 6], [2, 6.5], [10, -2], [-10, 3], [5, -2.4]];
+	for (const [x, z] of CENTER_SPROUTS) sprout(x, z);
 	bush(-10.5, 6.8);
 	bush(10.5, 6.5);
-	vasinho(-6.6, 1.6);
 
 	/* =========================================================
 	   Postes (acendem à noite)
@@ -264,6 +265,75 @@ if (container) {
 	duck.rotation.y = -0.8;
 	scene.add(duck);
 
+	/* ---------- Casinha do Pyter (base cinza, telhado vermelho), porta virada para a frente ---------- */
+	const house = new THREE.Group();
+	{
+		const GRAY = 0x9a9a9a;
+		const RED = 0xc0392b;
+		place(house, box(1.9, 0.08, 1.8, 0x7d7d7d), 0, 0.04, 0); // piso
+		place(house, box(1.9, 1.5, 0.12, GRAY), 0, 0.75, -0.84); // fundo
+		place(house, box(0.12, 1.5, 1.8, GRAY), -0.89, 0.75, 0); // laterais
+		place(house, box(0.12, 1.5, 1.8, GRAY), 0.89, 0.75, 0);
+		place(house, box(0.45, 1.5, 0.12, 0x8f8f8f), -0.72, 0.75, 0.84); // frente, com a porta no meio
+		place(house, box(0.45, 1.5, 0.12, 0x8f8f8f), 0.72, 0.75, 0.84);
+		place(house, box(1.0, 0.25, 0.12, 0x8f8f8f), 0, 1.38, 0.84);
+		// oitões (triângulo em degraus) na frente e no fundo
+		for (const z of [0.84, -0.84]) {
+			place(house, box(1.5, 0.25, 0.12, GRAY), 0, 1.62, z);
+			place(house, box(1.0, 0.25, 0.12, GRAY), 0, 1.87, z);
+			place(house, box(0.5, 0.2, 0.12, GRAY), 0, 2.08, z);
+		}
+		const roofL = place(house, box(1.35, 0.14, 2.1, RED), -0.52, 1.88, 0);
+		roofL.rotation.z = 0.62;
+		const roofR = place(house, box(1.35, 0.14, 2.1, RED), 0.52, 1.88, 0);
+		roofR.rotation.z = -0.62;
+		place(house, box(0.22, 0.18, 2.14, 0x962d22), 0, 2.27, 0); // cumeeira
+		place(house, box(0.5, 0.14, 0.04, 0xf5f0e1), 0, 1.38, 0.91); // plaquinha
+	}
+	house.position.set(-5.5, S, -1.6);
+	scene.add(house);
+	const HOUSE_IN = { x: house.position.x, z: house.position.z + 0.05 };
+	const HOUSE_DOOR = { x: house.position.x, z: house.position.z + 1.8 };
+
+	/* ---------- Mantas: bege (quentinha, felpuda) e azul (simples, com patinhas) ---------- */
+	const blanket = (color, decorate) => {
+		const g = new THREE.Group();
+		place(g, box(1.05, 0.06, 0.95, color), 0, 0.03, 0);
+		decorate(g);
+		scene.add(g);
+		return { g, inHouse: false };
+	};
+	const beige = blanket(0xeadcbc, (g) => {
+		// borda mais grossa e tufinhos: manta felpuda
+		place(g, box(1.09, 0.09, 0.1, 0xf6ecd4), 0, 0.045, 0.45);
+		place(g, box(1.09, 0.09, 0.1, 0xf6ecd4), 0, 0.045, -0.45);
+		for (const [x, z] of [[-0.25, -0.15], [0.2, 0.2], [0.3, -0.25], [-0.3, 0.25]]) place(g, box(0.12, 0.08, 0.12, 0xf6ecd4), x, 0.05, z);
+	});
+	const blue = blanket(0x4f86d9, (g) => {
+		const paw = (x, z) => {
+			place(g, box(0.14, 0.07, 0.12, 0xffffff), x, 0.04, z);
+			for (const dx of [-0.08, 0, 0.08]) place(g, box(0.05, 0.07, 0.05, 0xffffff), x + dx, 0.04, z - 0.12);
+		};
+		paw(-0.25, 0.2);
+		paw(0.25, -0.1);
+	});
+	const blankets = [beige, blue];
+	// dentro da casa as mantas empilham; fora, ficam onde o Pyter largou
+	const layoutHouse = () => {
+		let layer = 0;
+		for (const b of blankets) {
+			if (!b.inHouse || b === carriedBlanket) continue;
+			b.g.position.set(HOUSE_IN.x, S + 0.08 + layer * 0.06, HOUSE_IN.z);
+			b.g.rotation.set(0, 0, 0);
+			layer++;
+		}
+	};
+	let carriedBlanket = null;
+	beige.inHouse = true;
+	blue.g.position.set(-3.3, S, -1.2);
+	blue.g.rotation.y = 0.3;
+	layoutHouse();
+
 	for (const o of [food.group, drink.group, bone, duck]) hitbox(o, 1.1, 0.9, 1.1);
 	hitbox(ball, 0.9, 0.9, 0.9, 0);
 
@@ -332,30 +402,6 @@ if (container) {
 	   Reações ao carinho (clique/toque no Pyter)
 	   Cada clique seguido avança uma reação: feliz, coração, estrelinha, música, susto, amor.
 	   ========================================================= */
-	const PIXEL_ICONS = {
-		feliz: { colors: { y: "#ffd23f", k: "#222" }, rows: [
-			"..yyyyy..", ".yyyyyyy.", "yykyyykyy", "yykyyykyy", "yyyyyyyyy", "ykyyyyyky", "yykkkkkyy", ".yyyyyyy.", "..yyyyy..",
-		] },
-		coracao: { colors: { r: "#ff3b6b", w: "#ffd1dc" }, rows: [
-			".rr...rr.", "rwrr.rrrr", "rwrrrrrrr", "rrrrrrrrr", "rrrrrrrrr", ".rrrrrrr.", "..rrrrr..", "...rrr...", "....r....",
-		] },
-		estrela: { colors: { y: "#ffcf26", w: "#fff6c2" }, rows: [
-			"....y....", "....y....", "...yyy...", "yyyywyyyy", ".yyywyyy.", "..yyyyy..", "..yy.yy..", ".yy...yy.", ".y.....y.",
-		] },
-		musica: { colors: { k: "#3b3b8f" }, rows: [
-			"....kkkkk", "....kkkkk", "....k...k", "....k...k", "....k...k", ".kkkk.kkk", "kkkkkkkkk", "kkkk.kkkk", ".kk...kk.",
-		] },
-		susto: { colors: { r: "#ff4d4d" }, rows: [
-			"...rrr...", "...rrr...", "...rrr...", "...rrr...", "...rrr...", "....r....", ".........", "...rrr...", "...rrr...",
-		] },
-		amor: { colors: { r: "#ff3b6b", p: "#ff8fb1" }, rows: [
-			"rr.rr....", "rrrrr....", ".rrr.pp.p", "..r..pppp", ".....ppp.", "......p..", ".........", ".........", ".........",
-		] },
-	};
-	PIXEL_ICONS.duvida = { colors: { b: "#3b82f6" }, rows: [
-		"..bbbbb..", ".bb...bb.", ".bb...bb.", "......bb.", "....bbb..", "...bb....", "...bb....", ".........", "...bb....",
-	] };
-	const REACTIONS = ["feliz", "coracao", "estrela", "musica", "susto", "amor"];
 
 	// desenha o balão de fala em pixel art num canvas 24x24 (ampliado sem suavizar)
 	const bubbleTexture = (iconName) => {
@@ -389,7 +435,7 @@ if (container) {
 		tex.colorSpace = THREE.SRGBColorSpace;
 		return tex;
 	};
-	const bubbleTextures = Object.fromEntries(REACTIONS.map((r) => [r, bubbleTexture(r)]));
+	const bubbleTextures = Object.fromEntries(Object.keys(PIXEL_ICONS).map((r) => [r, bubbleTexture(r)]));
 	const bubble = new THREE.Sprite(new THREE.SpriteMaterial({ map: bubbleTextures.feliz, depthTest: false, transparent: true, fog: false }));
 	bubble.renderOrder = 10;
 	bubble.visible = false;
@@ -426,30 +472,146 @@ if (container) {
 		get x() { return THREE.MathUtils.clamp(v.x, FLAT.x0 + 0.6, FLAT.x1 - 0.6); },
 		get z() { return THREE.MathUtils.clamp(v.z, FLAT.z0 + 0.6, FLAT.z1 - 0.6); },
 	});
+	// objetos sólidos: o Pyter contorna em vez de passar por cima (raio já conta o tamanho dele)
+	const OBSTACLES = [
+		// raio = metade do objeto + ~0,6 (meio corpo do Pyter), para nem a cabeça nem o rabo encostarem
+		{ pos: food.group.position, r: 0.95 },
+		{ pos: drink.group.position, r: 0.95 },
+		{ pos: duck.position, r: 0.8 },
+		{ pos: house.position, r: 1.6 },
+		{ pos: { x: -9, z: 0 }, r: 0.7 }, // postes
+		{ pos: { x: 5, z: 6.5 }, r: 0.7 },
+		{ pos: { x: -10.5, z: 6.8 }, r: 1.0 }, // arbustos
+		{ pos: { x: 10.5, z: 6.5 }, r: 1.0 },
+		...CENTER_SPROUTS.map(([x, z]) => ({ pos: { x, z }, r: 0.6 })), // plantinhas
+	];
+	const blocked = (x, z, extra = 0) => OBSTACLES.some((o) => Math.hypot(x - o.pos.x, z - o.pos.z) < o.r + extra);
+	// empurra o ponto para fora de qualquer obstáculo, deslizando pela borda dele
+	const pushOut = (p) => {
+		for (const o of OBSTACLES) {
+			const dx = p.x - o.pos.x;
+			const dz = p.z - o.pos.z;
+			const d = Math.hypot(dx, dz) || 0.001;
+			if (d < o.r) {
+				p.x = o.pos.x + (dx / d) * o.r;
+				p.z = o.pos.z + (dz / d) * o.r;
+			}
+		}
+		return p;
+	};
+	// desvia antes de encostar: se o caminho reto cruza um obstáculo, mira na lateral dele
+	const steerAround = (target) => {
+		for (const o of OBSTACLES) {
+			const ax = target.x - dog.position.x;
+			const az = target.z - dog.position.z;
+			const len = Math.hypot(ax, az);
+			if (len < 0.01) continue;
+			const ox = o.pos.x - dog.position.x;
+			const oz = o.pos.z - dog.position.z;
+			const along = (ox * ax + oz * az) / len;
+			if (along <= 0 || along > len) continue;
+			// o obstáculo fica a -side da linha (na normal n); o desvio passa pelo lado oposto
+			const side = (ox * az - oz * ax) / len;
+			if (Math.abs(side) >= o.r + 0.15) continue;
+			const k = (side >= 0 ? 1 : -1) * (o.r + 0.4);
+			return { x: o.pos.x + (-az / len) * k, z: o.pos.z + (ax / len) * k };
+		}
+		return target;
+	};
 	const randomSpot = () => {
 		for (;;) {
-			const p = { x: rand(FLAT.x0 + 1, FLAT.x1 - 1), z: rand(FLAT.z0 + 0.5, FLAT.z1 - 0.5) };
-			if (!nearLake(p.x, p.z, 1.2)) return p;
+			// em telas em pé a câmera enxerga menos dos lados: passeia só pelo miolo visível
+			const spanX = container.clientWidth < container.clientHeight * 1.2 ? 5 : FLAT.x1 - 1;
+			const p = { x: rand(-spanX, spanX), z: rand(FLAT.z0 + 0.5, FLAT.z1 - 0.5) };
+			if (!nearLake(p.x, p.z, 1.2) && !blocked(p.x, p.z, 0.3)) return p;
 		}
 	};
-	const bowlFront = (b) => ({ x: b.group.position.x, z: b.group.position.z + 0.95 });
+	const bowlFront = (b) => ({ x: b.group.position.x, z: b.group.position.z + 1.1 });
 
 	let heading = 0;
 	let carrying = null;
 	let task = null; // { type, target, phase, t }
 	let idleFor = 1.5;
 	let isNight = false;
+	// à noite o Pyter dorme; um clique o acorda por um tempo sorteado
+	let awakeUntil = 0;
+	let nowT = 0;
+	const sleepy = () => isNight && nowT > awakeUntil;
+
+	let inHouse = false;
+	let lastBlanketMove = -99;
+	const outsideBlankets = () => blankets.filter((b) => !b.inHouse && b !== carriedBlanket);
+
+	const grabBlanket = (b) => {
+		carriedBlanket = b;
+		head.add(b.g);
+		b.g.position.set(0.62, -0.32, 0); // dobrada na boca
+		b.g.rotation.set(0, 0, 0);
+		b.g.scale.set(0.42, 1.6, 0.5);
+		layoutHouse();
+	};
+	const dropBlanket = (intoHouse) => {
+		const b = carriedBlanket;
+		if (!b) return;
+		carriedBlanket = null;
+		scene.add(b.g);
+		b.g.scale.set(1, 1, 1);
+		b.inHouse = intoHouse;
+		if (intoHouse) return layoutHouse();
+		// estende a manta no chão logo à frente dele
+		const p = pushOut({ x: dog.position.x + Math.cos(heading) * 0.7, z: dog.position.z - Math.sin(heading) * 0.7 });
+		b.g.position.set(p.x, S, p.z);
+		b.g.rotation.set(0, heading + rand(-0.3, 0.3), 0);
+	};
+
+	// onde dormir é sorteado: casinha, uma manta lá fora ou qualquer cantinho
+	const sleepSpot = () => {
+		if (inHouse) return null;
+		const outside = outsideBlankets();
+		const r = Math.random();
+		if (r < 0.5) return { house: true, target: HOUSE_DOOR };
+		if (r < 0.85 && outside.length) {
+			const b = outside[Math.floor(Math.random() * outside.length)];
+			return { target: { x: b.g.position.x, z: b.g.position.z } };
+		}
+		return null;
+	};
 
 	const setTask = (type) => {
 		if (carrying && type !== "bone") dropBone();
+		if (carriedBlanket && type !== "blanketDrop") dropBlanket(false);
+		// dentro da casinha, qualquer coisa que não seja dormir/reagir começa saindo pela porta
+		if (inHouse && !["sleep", "react", "exit"].includes(type)) {
+			task = { type: "exit", phase: "do", t: 0, next: type };
+			return;
+		}
 		switch (type) {
 			case "eat": task = { type, target: bowlFront(food), face: food.group.position }; break;
 			case "drink": task = { type, target: bowlFront(drink), face: drink.group.position }; break;
 			case "ball": task = { type, target: inside(ball.position), run: true, face: ball.position }; break;
-			case "duck": task = { type, target: { x: duck.position.x - 0.8, z: duck.position.z }, face: duck.position }; break;
+			case "duck": task = { type, target: { x: duck.position.x - 1.0, z: duck.position.z }, face: duck.position }; break;
 			case "bone": task = { type, target: carrying ? randomSpot() : inside(bone.position), face: bone.position }; break;
 			case "sit": task = { type, dur: rand(3, 5) }; break;
-			case "sleep": task = { type, dur: rand(12, 20) }; break;
+			// need: quantos cliques seguidos para acordar (sorteado); pose: ângulo de rolagem do corpo
+			case "sleep": {
+				const spot = sleepSpot();
+				task = { type, dur: rand(12, 20), need: 3 + Math.floor(rand(0, 4)), pokes: 0, lastPoke: -10, pose: 0, shiftIn: rand(4, 9), dream: 0, stir: 0 };
+				if (spot) {
+					task.target = spot.target;
+					task.enter = !!spot.house;
+				}
+				break;
+			}
+			case "exit": task = { type, next: null }; break;
+			case "blanket": {
+				// leva uma manta para dentro ou para fora da casinha (sorteado)
+				const b = blankets[Math.floor(Math.random() * blankets.length)];
+				lastBlanketMove = nowT;
+				task = b.inHouse
+					? { type, b, target: HOUSE_DOOR, face: house.position }
+					: { type, b, target: { x: b.g.position.x, z: b.g.position.z } };
+				break;
+			}
 			case "react": task = { type, dur: 2 }; break;
 			default: task = { type: "walk", target: randomSpot() };
 		}
@@ -457,7 +619,27 @@ if (container) {
 		task.phase = task.target ? "go" : "do";
 	};
 
+	const SLEEP_POSES = [0, Math.PI / 2, -Math.PI / 2, Math.PI]; // enrolado, de lado (2) e de barriga pra cima
+	const otherSleepPose = (cur) => {
+		const options = SLEEP_POSES.filter((p) => p !== cur);
+		return options[Math.floor(Math.random() * options.length)];
+	};
+
 	const petDog = (now) => {
+		if (task?.type === "sleep") {
+			// precisa insistir: cliques espaçados demais não contam (ele volta ao sono pesado)
+			task.pokes = now - task.lastPoke < 3 ? task.pokes + 1 : 1;
+			task.lastPoke = now;
+			if (task.pokes < task.need) {
+				task.stir = 0.8; // resmunga, mexe a orelha
+				if (Math.random() < 0.45) task.pose = otherSleepPose(task.pose); // às vezes rola para o outro lado
+				showBubble("zzz");
+				return;
+			}
+			petCount = 0;
+		}
+		// acordou (ou ganhou mais carinho): à noite fica de pé por 25 a 60 s antes de voltar a dormir
+		if (isNight) awakeUntil = Math.max(awakeUntil, now + rand(25, 60));
 		petCount = now - lastPet < 1.6 ? petCount + 1 : 1;
 		lastPet = now;
 		const kind = REACTIONS[(petCount - 1) % REACTIONS.length];
@@ -466,9 +648,24 @@ if (container) {
 		task.kind = kind;
 	};
 
+	let pendingStart = null; // primeira atividade sorteada no carregamento
 	const chooseNext = () => {
 		const r = Math.random();
-		if (isNight && r < 0.45) return setTask("sleep");
+		if (pendingStart) {
+			const first = pendingStart;
+			pendingStart = null;
+			// à noite ele já pode ser encontrado dormindo
+			if (sleepy() || (isNight && Math.random() < 0.7)) return setTask("sleep");
+			return setTask(first);
+		}
+		const canMoveBlanket = nowT - lastBlanketMove > 25;
+		if (sleepy()) {
+			// antes de deitar, às vezes arruma as mantas do jeito dele
+			if (!inHouse && canMoveBlanket && r < 0.3) return setTask("blanket");
+			return setTask("sleep");
+		}
+		if (inHouse) return setTask("exit");
+		if (canMoveBlanket && r < 0.07) return setTask("blanket");
 		if (food.level > 0.15 && r < 0.18) return setTask("eat");
 		if (drink.level > 0.15 && r < 0.32) return setTask("drink");
 		if (r < 0.5) return setTask("ball");
@@ -477,6 +674,26 @@ if (container) {
 		if (r < 0.8) return setTask("sit");
 		setTask("walk");
 	};
+
+	// a cada carregamento: Pyter nasce num lugar, direção e atividade sorteados, e as mantas também mudam de lugar
+	{
+		const p = randomSpot();
+		dog.position.set(p.x, S, p.z);
+		heading = rand(-Math.PI, Math.PI);
+		for (const b of blankets) {
+			if (Math.random() < 0.5) continue;
+			b.inHouse = !b.inHouse;
+			if (!b.inHouse) {
+				const q = randomSpot();
+				b.g.position.set(q.x, S, q.z);
+				b.g.rotation.y = rand(0, Math.PI);
+			}
+		}
+		layoutHouse();
+		const starts = ["sit", "walk", "ball", "bone", "duck", "eat", "drink"];
+		idleFor = 0.4;
+		pendingStart = starts[Math.floor(Math.random() * starts.length)];
+	}
 
 	const pickBone = () => {
 		carrying = bone;
@@ -512,6 +729,7 @@ if (container) {
 	const pose = { sit: 0, lie: 0, eat: 0, jump: 0, walk: 0, eyes: 1, tilt: 0, wag: 0, sway: 0 };
 	let spin = 0; // giro extra (estrelinha)
 	let roll = 0; // cambalhota (amor)
+	let sleepRoll = 0; // posição de sono: de lado / barriga pra cima
 	// fases acumuladas: mudar de ritmo (andar/correr/parar) não faz as patas "pularem"
 	let gait = 0;
 	let wagPhase = 0;
@@ -520,6 +738,7 @@ if (container) {
 	const goal = { ...pose };
 
 	const updateDog = (dt, t) => {
+		nowT = t;
 		for (const k in goal) goal[k] = 0;
 		goal.eyes = 1;
 
@@ -535,7 +754,8 @@ if (container) {
 				task.phase = "do";
 				task.t = 0;
 			} else {
-				turnToward(Math.atan2(-dz, dx), dt);
+				const via = steerAround(task.target);
+				turnToward(Math.atan2(-(via.z - dog.position.z), via.x - dog.position.x), dt);
 				const speed = task.run ? 3.4 : 1.9;
 				let nx = dog.position.x + Math.cos(heading) * speed * dt;
 				let nz = dog.position.z - Math.sin(heading) * speed * dt;
@@ -548,7 +768,7 @@ if (container) {
 						nz = dog.position.z + speed * dt;
 					}
 				}
-				const p = flat(nx, nz);
+				const p = flat(...Object.values(pushOut({ x: nx, z: nz })));
 				const moved = Math.hypot(p.x - dog.position.x, p.z - dog.position.z);
 				dog.position.x = p.x;
 				dog.position.z = p.z;
@@ -600,7 +820,7 @@ if (container) {
 					// passinho para trás, sacode a cabeça, senta e vira para o outro lado
 					if (task.t < 0.35) {
 						const q = flat(dog.position.x - Math.cos(heading) * dt * 1.2, dog.position.z + Math.sin(heading) * dt * 1.2);
-						if (!nearLake(q.x, q.z, 0.6)) {
+						if (!nearLake(q.x, q.z, 0.6) && !blocked(q.x, q.z)) {
 							dog.position.x = q.x;
 							dog.position.z = q.z;
 						}
@@ -644,10 +864,69 @@ if (container) {
 					goal.sit = 1;
 					if (task.t > task.dur) task = null;
 					break;
+				case "exit": {
+					// sai pela porta, de frente para fora
+					const k = Math.min(1, task.t / 1.1);
+					turnToward(-Math.PI / 2, dt, 8);
+					dog.position.x = THREE.MathUtils.lerp(HOUSE_IN.x, HOUSE_DOOR.x, k);
+					dog.position.z = THREE.MathUtils.lerp(HOUSE_IN.z, HOUSE_DOOR.z, k);
+					goal.walk = 1;
+					if (k >= 1) {
+						inHouse = false;
+						const next = task.next;
+						task = null;
+						if (next) setTask(next);
+					}
+					break;
+				}
+				case "blanket":
+					// pega a manta com a boca (abaixa a cabeça) e leva para o outro lugar
+					goal.eat = 1;
+					if (task.t > 0.6) {
+						const b = task.b;
+						const toHouse = !b.inHouse;
+						grabBlanket(b);
+						task = { type: "blanketDrop", toHouse, target: toHouse ? HOUSE_DOOR : randomSpot(), phase: "go", t: 0 };
+					}
+					break;
+				case "blanketDrop":
+					goal.eat = task.t < 0.5 ? 1 : 0;
+					if (task.t > 0.5) {
+						dropBlanket(task.toHouse);
+						task = { type: "sit", phase: "do", dur: 1.5, t: 0 };
+					}
+					break;
 				case "sleep":
+					if (task.enter && !inHouse) {
+						// entra na casinha e se vira para a porta
+						const k = Math.min(1, task.t / 1.1);
+						turnToward(Math.PI / 2, dt, 8);
+						dog.position.x = THREE.MathUtils.lerp(HOUSE_DOOR.x, HOUSE_IN.x, k);
+						dog.position.z = THREE.MathUtils.lerp(HOUSE_DOOR.z, HOUSE_IN.z, k);
+						goal.walk = 1;
+						if (k >= 1) {
+							inHouse = true;
+							task.t = 0;
+						}
+						break;
+					}
+					if (inHouse && task.t < 1.5) turnToward(-Math.PI / 2, dt, 3);
 					goal.lie = 1;
-					goal.eyes = 0.15;
-					if (task.t > task.dur) task = null;
+					goal.eyes = task.stir > 0 ? 0.3 : 0;
+					task.stir = Math.max(0, task.stir - dt);
+					if (task.stir > 0) shake = Math.sin(task.t * 18) * 0.15;
+					// muda de posição sozinho de tempos em tempos (RNG)
+					task.shiftIn -= dt;
+					if (task.shiftIn <= 0) {
+						task.pose = Math.random() < 0.6 ? otherSleepPose(task.pose) : task.pose;
+						task.shiftIn = rand(5, 12);
+						if (Math.random() < 0.35) task.dream = rand(1.5, 3); // sonhando: patinhas correndo
+					}
+					task.dream = Math.max(0, task.dream - dt);
+					if (task.dream > 0) goal.walk = 0.25;
+					if (!bubble.visible && task.t > 1) showBubble("zzz");
+					// de noite só levanta quando alguém o acorda
+					if (task.t > task.dur && !sleepy()) task = null;
 					break;
 				default:
 					task = null;
@@ -671,8 +950,14 @@ if (container) {
 		const hop = pose.jump * Math.abs(Math.sin(t * 9)) * 0.45;
 		rig.position.y = Math.abs(Math.sin(gait)) * 0.04 * Math.min(1, pose.walk) - lie * 0.3 - pose.sit * 0.12 + hop;
 		rig.rotation.z = pose.sit * 0.42;
-		rig.rotation.x = roll + Math.sin(t * 8) * 0.18 * pose.sway;
+		// rola devagar até a pose sorteada; sobe o corpo para não afundar no chão ao girar
+		const sleeping = task?.type === "sleep" && task.phase === "do";
+		sleepRoll += ((sleeping ? task.pose : 0) - sleepRoll) * Math.min(1, dt * 2.2);
+		rig.position.y += 0.65 * (1 - Math.cos(sleepRoll));
+		rig.rotation.x = roll + sleepRoll + Math.sin(t * 8) * 0.18 * pose.sway;
 		rig.position.x = Math.sin(t * 8) * 0.12 * pose.sway;
+		// respiração lenta enquanto dorme
+		body.scale.y = 1 + (sleeping ? Math.sin(t * 2.2) * 0.04 : 0);
 
 		head.rotation.z = -pose.eat * 0.75 + Math.sin(t * 7) * 0.07 * pose.eat - pose.sit * 0.3 + Math.sin(t * 2) * 0.04;
 		head.position.y = LEG + 0.62 - pose.eat * 0.12 - lie * 0.05;
@@ -911,8 +1196,26 @@ if (container) {
 	window.addEventListener("pointermove", (e) => (mouseX = e.clientX / window.innerWidth - 0.5));
 
 	const clock = new THREE.Clock();
+	// qualidade adaptativa: se os primeiros quadros forem lentos (celular fraco, máquina sem GPU),
+	// baixa a resolução e desliga as sombras para a página continuar fluida
+	const perf = { frames: 0, time: 0, low: false };
+	const adaptQuality = (raw) => {
+		if (perf.low || perf.frames > 90) return;
+		perf.frames++;
+		if (perf.frames > 10) perf.time += raw; // ignora os primeiros quadros (compilação de shaders)
+		if (perf.frames === 90 && perf.time / 80 > 1 / 30) {
+			perf.low = true;
+			renderer.setPixelRatio(1);
+			renderer.shadowMap.enabled = false;
+			scene.traverse((o) => o.material && (o.material.needsUpdate = true));
+			resize();
+		}
+	};
+
 	const frame = () => {
-		const dt = Math.min(clock.getDelta(), 0.05);
+		const raw = clock.getDelta();
+		adaptQuality(raw);
+		const dt = Math.min(raw, 0.05);
 		const t = clock.elapsedTime;
 		updateDog(dt, t);
 		updateToys(dt);
@@ -937,8 +1240,12 @@ if (container) {
 				const r = renderer.domElement.getBoundingClientRect();
 				return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
 			},
-			bubble: () => bubble.visible && bubble.material.map === bubbleTextures.duvida ? "duvida" : bubble.visible ? REACTIONS.find((k) => bubbleTextures[k] === bubble.material.map) : null,
+			bubble: () => (bubble.visible ? Object.keys(bubbleTextures).find((k) => bubbleTextures[k] === bubble.material.map) : null),
 			task: () => task?.type ?? null,
+			pos: () => ({ x: dog.position.x, z: dog.position.z, heading }),
+			inHouse: () => inHouse,
+			// menor distância entre o Pyter e o centro de cada obstáculo (descontado o raio)
+			clearance: () => Math.min(...OBSTACLES.filter((o) => !(inHouse && o.pos === house.position)).map((o) => Math.hypot(dog.position.x - o.pos.x, dog.position.z - o.pos.z) - o.r)),
 		};
 	}
 
