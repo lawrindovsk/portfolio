@@ -1196,8 +1196,26 @@ if (container) {
 	window.addEventListener("pointermove", (e) => (mouseX = e.clientX / window.innerWidth - 0.5));
 
 	const clock = new THREE.Clock();
+	// qualidade adaptativa: se os primeiros quadros forem lentos (celular fraco, máquina sem GPU),
+	// baixa a resolução e desliga as sombras para a página continuar fluida
+	const perf = { frames: 0, time: 0, low: false };
+	const adaptQuality = (raw) => {
+		if (perf.low || perf.frames > 90) return;
+		perf.frames++;
+		if (perf.frames > 10) perf.time += raw; // ignora os primeiros quadros (compilação de shaders)
+		if (perf.frames === 90 && perf.time / 80 > 1 / 30) {
+			perf.low = true;
+			renderer.setPixelRatio(1);
+			renderer.shadowMap.enabled = false;
+			scene.traverse((o) => o.material && (o.material.needsUpdate = true));
+			resize();
+		}
+	};
+
 	const frame = () => {
-		const dt = Math.min(clock.getDelta(), 0.05);
+		const raw = clock.getDelta();
+		adaptQuality(raw);
+		const dt = Math.min(raw, 0.05);
 		const t = clock.elapsedTime;
 		updateDog(dt, t);
 		updateToys(dt);
