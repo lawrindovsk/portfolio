@@ -188,10 +188,10 @@ if (container) {
 		n++;
 	}
 	// algumas plantinhas na grama da área central, longe do caminho dos brinquedos
-	for (const [x, z] of [[-9, -1.5], [-8, 6], [2, 6.5], [10, -2], [-10, 3], [5, -2.4]]) sprout(x, z);
+	const CENTER_SPROUTS = [[-9, -1.5], [-8, 6], [2, 6.5], [10, -2], [-10, 3], [5, -2.4]];
+	for (const [x, z] of CENTER_SPROUTS) sprout(x, z);
 	bush(-10.5, 6.8);
 	bush(10.5, 6.5);
-	vasinho(-6.6, 1.6);
 
 	/* =========================================================
 	   Postes (acendem à noite)
@@ -289,10 +289,10 @@ if (container) {
 		place(house, box(0.22, 0.18, 2.14, 0x962d22), 0, 2.27, 0); // cumeeira
 		place(house, box(0.5, 0.14, 0.04, 0xf5f0e1), 0, 1.38, 0.91); // plaquinha
 	}
-	house.position.set(-7.6, S, -1.6);
+	house.position.set(-5.5, S, -1.6);
 	scene.add(house);
 	const HOUSE_IN = { x: house.position.x, z: house.position.z + 0.05 };
-	const HOUSE_DOOR = { x: house.position.x, z: house.position.z + 1.6 };
+	const HOUSE_DOOR = { x: house.position.x, z: house.position.z + 1.8 };
 
 	/* ---------- Mantas: bege (quentinha, felpuda) e azul (simples, com patinhas) ---------- */
 	const blanket = (color, decorate) => {
@@ -329,7 +329,7 @@ if (container) {
 	};
 	let carriedBlanket = null;
 	beige.inHouse = true;
-	blue.g.position.set(-5.7, S, -1.4);
+	blue.g.position.set(-3.3, S, -1.2);
 	blue.g.rotation.y = 0.3;
 	layoutHouse();
 
@@ -501,10 +501,16 @@ if (container) {
 	});
 	// objetos sólidos: o Pyter contorna em vez de passar por cima (raio já conta o tamanho dele)
 	const OBSTACLES = [
-		{ pos: food.group.position, r: 0.85 },
-		{ pos: drink.group.position, r: 0.85 },
-		{ pos: duck.position, r: 0.6 },
-		{ pos: house.position, r: 1.4 },
+		// raio = metade do objeto + ~0,6 (meio corpo do Pyter), para nem a cabeça nem o rabo encostarem
+		{ pos: food.group.position, r: 0.95 },
+		{ pos: drink.group.position, r: 0.95 },
+		{ pos: duck.position, r: 0.8 },
+		{ pos: house.position, r: 1.6 },
+		{ pos: { x: -9, z: 0 }, r: 0.7 }, // postes
+		{ pos: { x: 5, z: 6.5 }, r: 0.7 },
+		{ pos: { x: -10.5, z: 6.8 }, r: 1.0 }, // arbustos
+		{ pos: { x: 10.5, z: 6.5 }, r: 1.0 },
+		...CENTER_SPROUTS.map(([x, z]) => ({ pos: { x, z }, r: 0.6 })), // plantinhas
 	];
 	const blocked = (x, z, extra = 0) => OBSTACLES.some((o) => Math.hypot(x - o.pos.x, z - o.pos.z) < o.r + extra);
 	// empurra o ponto para fora de qualquer obstáculo, deslizando pela borda dele
@@ -541,11 +547,13 @@ if (container) {
 	};
 	const randomSpot = () => {
 		for (;;) {
-			const p = { x: rand(FLAT.x0 + 1, FLAT.x1 - 1), z: rand(FLAT.z0 + 0.5, FLAT.z1 - 0.5) };
+			// em telas em pé a câmera enxerga menos dos lados: passeia só pelo miolo visível
+			const spanX = container.clientWidth < container.clientHeight * 1.2 ? 5 : FLAT.x1 - 1;
+			const p = { x: rand(-spanX, spanX), z: rand(FLAT.z0 + 0.5, FLAT.z1 - 0.5) };
 			if (!nearLake(p.x, p.z, 1.2) && !blocked(p.x, p.z, 0.3)) return p;
 		}
 	};
-	const bowlFront = (b) => ({ x: b.group.position.x, z: b.group.position.z + 0.95 });
+	const bowlFront = (b) => ({ x: b.group.position.x, z: b.group.position.z + 1.1 });
 
 	let heading = 0;
 	let carrying = null;
@@ -608,7 +616,7 @@ if (container) {
 			case "eat": task = { type, target: bowlFront(food), face: food.group.position }; break;
 			case "drink": task = { type, target: bowlFront(drink), face: drink.group.position }; break;
 			case "ball": task = { type, target: inside(ball.position), run: true, face: ball.position }; break;
-			case "duck": task = { type, target: { x: duck.position.x - 0.8, z: duck.position.z }, face: duck.position }; break;
+			case "duck": task = { type, target: { x: duck.position.x - 1.0, z: duck.position.z }, face: duck.position }; break;
 			case "bone": task = { type, target: carrying ? randomSpot() : inside(bone.position), face: bone.position }; break;
 			case "sit": task = { type, dur: rand(3, 5) }; break;
 			// need: quantos cliques seguidos para acordar (sorteado); pose: ângulo de rolagem do corpo
@@ -1241,8 +1249,12 @@ if (container) {
 				const r = renderer.domElement.getBoundingClientRect();
 				return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
 			},
-			bubble: () => bubble.visible && bubble.material.map === bubbleTextures.duvida ? "duvida" : bubble.visible ? REACTIONS.find((k) => bubbleTextures[k] === bubble.material.map) : null,
+			bubble: () => (bubble.visible ? Object.keys(bubbleTextures).find((k) => bubbleTextures[k] === bubble.material.map) : null),
 			task: () => task?.type ?? null,
+			pos: () => ({ x: dog.position.x, z: dog.position.z, heading }),
+			inHouse: () => inHouse,
+			// menor distância entre o Pyter e o centro de cada obstáculo (descontado o raio)
+			clearance: () => Math.min(...OBSTACLES.filter((o) => !(inHouse && o.pos === house.position)).map((o) => Math.hypot(dog.position.x - o.pos.x, dog.position.z - o.pos.z) - o.r)),
 		};
 	}
 
