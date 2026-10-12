@@ -12,8 +12,9 @@ export default defineConfig({
 	retries: process.env.CI ? 1 : 0,
 	fullyParallel: true,
 	reporter: [["list"]],
-	use: { baseURL: "http://localhost:4173", trace: "retain-on-failure" },
-	webServer: { command: "node tests/serve.mjs", url: "http://localhost:4173", reuseExistingServer: true },
+	// BASE_URL testa um site já publicado, ex.: BASE_URL=https://lawrindovsk.github.io/portfolio/
+	use: { baseURL: process.env.BASE_URL ?? "http://localhost:4173", trace: "retain-on-failure" },
+	webServer: process.env.BASE_URL ? undefined : { command: "node tests/serve.mjs", url: "http://localhost:4173", reuseExistingServer: true },
 	projects: [
 		{ name: "iphone-se", use: asChromium(devices["iPhone SE"]) },
 		{ name: "iphone-14", use: asChromium(devices["iPhone 14"]) },

@@ -5,7 +5,7 @@ const watchErrors = (page) => {
 	const errors = [];
 	page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
 	page.on("console", (m) => m.type() === "error" && !/simpleicons|Failed to load resource/.test(m.text()) && errors.push(`console: ${m.text()}`));
-	page.on("response", (r) => r.url().startsWith("http://localhost") && r.status() >= 400 && errors.push(`${r.status()} ${r.url()}`));
+	page.on("response", (r) => r.status() >= 400 && !/fonts.g|simpleicons/.test(r.url()) && errors.push(`${r.status()} ${r.url()}`));
 	return errors;
 };
 
@@ -14,7 +14,7 @@ const isMobileWidth = (page) => page.viewportSize().width <= 768;
 test.describe("layout responsivo", () => {
 	test("carrega sem erros e sem rolagem horizontal", async ({ page }) => {
 		const errors = watchErrors(page);
-		await page.goto("/");
+		await page.goto("./");
 		await page.waitForLoadState("networkidle");
 		// percorre a página inteira para disparar os reveals
 		await page.evaluate(async () => {
@@ -46,7 +46,7 @@ test.describe("layout responsivo", () => {
 	});
 
 	test("seções na ordem certa", async ({ page }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const ids = await page.$$eval("main section[id]", (s) => s.map((x) => x.id).filter((id) => !["home", "intro"].includes(id)));
 		expect(ids).toEqual(["about", "experience", "skills", "projects", "certifications", "contact"]);
 		const nav = await page.$$eval("#navLinks a", (a) => a.map((x) => x.getAttribute("href")));
@@ -54,7 +54,7 @@ test.describe("layout responsivo", () => {
 	});
 
 	test("menu de navegação funciona", async ({ page }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const toggle = page.locator("#navToggle");
 		if (isMobileWidth(page)) {
 			await expect(toggle).toBeVisible();
@@ -71,12 +71,12 @@ test.describe("layout responsivo", () => {
 
 test.describe("CV", () => {
 	test("botão Ver CV abre o PDF atual em nova aba", async ({ page, request }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const cv = page.getByRole("link", { name: /Ver CV/ });
 		await expect(cv).toBeVisible();
 		await expect(cv).toHaveAttribute("target", "_blank");
 		const href = await cv.getAttribute("href");
-		const res = await request.get(`/${href}`);
+		const res = await request.get(`./${href}`);
 		expect(res.status(), href).toBe(200);
 		expect((await res.body()).subarray(0, 5).toString()).toBe("%PDF-");
 	});
@@ -84,7 +84,7 @@ test.describe("CV", () => {
 
 test.describe("projetos", () => {
 	test("lista sem filtros, com todos os projetos e links válidos", async ({ page }) => {
-		await page.goto("/");
+		await page.goto("./");
 		await expect(page.locator(".filter")).toHaveCount(0);
 		const rows = page.locator("#projectsGrid .project-row");
 		await expect(rows).toHaveCount(7);
@@ -106,7 +106,7 @@ test.describe("projetos", () => {
 
 test.describe("certificações", () => {
 	test("logos, botões e selo 'em breve'", async ({ page }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const cards = page.locator(".cert-card");
 		await expect(cards).toHaveCount(9);
 		await expect(page.locator(".cert-card .cert-logo")).toHaveCount(9);
@@ -120,14 +120,14 @@ test.describe("certificações", () => {
 	});
 
 	test("todas as imagens de certificado existem", async ({ page, request }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const srcs = await page.$$eval("[data-cert]", (a) => a.map((x) => x.dataset.cert));
 		expect(srcs.length).toBe(5);
-		for (const s of srcs) expect((await request.get(`/${s}`)).status(), s).toBe(200);
+		for (const s of srcs) expect((await request.get(`./${s}`)).status(), s).toBe(200);
 	});
 
 	test("pop-up abre centralizado, mostra a imagem e fecha", async ({ page }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const btn = page.locator('[data-cert-title="IT Essentials"]');
 		await btn.scrollIntoViewIfNeeded();
 		await btn.click();
@@ -158,7 +158,7 @@ test.describe("certificações", () => {
 
 test.describe("Pyter (cena 3D)", () => {
 	const ready = async (page, hora) => {
-		await page.goto(`/?debug&hora=${hora}`);
+		await page.goto(`./?debug&hora=${hora}`);
 		await page.waitForFunction(() => window.pyter && window.pyter.task() !== undefined);
 		await page.waitForTimeout(1200);
 	};
