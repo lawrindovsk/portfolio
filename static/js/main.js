@@ -21,15 +21,6 @@
 	const escapeHtml = (str) =>
 		String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
-	const stopwords = new Set(["de", "da", "do", "das", "dos", "e", "para", "com", "o", "a"]);
-	const initials = (title) =>
-		title
-			.split(/\s+/)
-			.filter((w) => !stopwords.has(w.toLowerCase()))
-			.slice(0, 2)
-			.map((w) => w[0].toUpperCase())
-			.join("");
-
 	const icons = {
 		github:
 			'<svg viewBox="0 0 24 24" class="fill" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg>',
@@ -39,7 +30,7 @@
 
 	const typeLabels = { pessoal: "Pessoal", cliente: "Cliente", academico: "Acadêmico" };
 
-	const projectCard = (p, i) => {
+	const projectRow = (p, i) => {
 		const links = [
 			p.repo && `<a href="${escapeHtml(p.repo)}" target="_blank" rel="noopener" aria-label="Código de ${escapeHtml(p.title)}">${icons.github}</a>`,
 			p.demo && `<a href="${escapeHtml(p.demo)}" target="_blank" rel="noopener" aria-label="Abrir ${escapeHtml(p.title)}">${icons.external}</a>`,
@@ -59,11 +50,10 @@
 			</li>`;
 	};
 
-	const renderProjects = (filter = "all") => {
-		const list = PROJECTS.filter((p) => filter === "all" || p.type === filter);
-		grid.innerHTML = list.length
-			? list.map(projectCard).join("")
-			: '<li class="empty">Nenhum projeto nesta categoria ainda. Em breve!</li>';
+	const renderProjects = () => {
+		grid.innerHTML = PROJECTS.length
+			? PROJECTS.map(projectRow).join("")
+			: '<li class="empty">Nenhum projeto por aqui ainda. Em breve!</li>';
 		observeReveals(grid);
 	};
 

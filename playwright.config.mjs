@@ -1,11 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Celulares e tablets rodam no Chromium (Edge instalado no Windows) com viewport, toque e DPR de cada aparelho.
-const asChromium = (d) => ({ ...d, defaultBrowserType: "chromium", channel: "msedge" });
+// Localmente usa o Edge do Windows; no CI (GitHub Actions) usa o Chromium do Playwright.
+const channel = process.env.CI ? undefined : "msedge";
+const asChromium = (d) => ({ ...d, defaultBrowserType: "chromium", channel });
 
 export default defineConfig({
 	testDir: "tests",
-	timeout: 45_000,
+	// a máquina do CI não tem GPU (WebGL em software): mais tempo, menos paralelismo e 1 nova tentativa
+	timeout: process.env.CI ? 90_000 : 45_000,
+	workers: process.env.CI ? 2 : undefined,
+	retries: process.env.CI ? 1 : 0,
 	fullyParallel: true,
 	reporter: [["list"]],
 	use: { baseURL: "http://localhost:4173", trace: "retain-on-failure" },
@@ -18,6 +22,6 @@ export default defineConfig({
 		{ name: "ipad-mini", use: asChromium(devices["iPad Mini"]) },
 		{ name: "ipad-pro-landscape", use: asChromium(devices["iPad Pro 11 landscape"]) },
 		{ name: "galaxy-tab", use: asChromium(devices["Galaxy Tab S4"]) },
-		{ name: "desktop", use: { ...devices["Desktop Edge"], channel: "msedge" } },
+		{ name: "desktop", use: { ...devices["Desktop Edge"], channel } },
 	],
 });
