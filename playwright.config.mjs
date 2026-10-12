@@ -1,7 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Celulares e tablets rodam no Chromium (Edge instalado no Windows) com viewport, toque e DPR de cada aparelho.
-const asChromium = (d) => ({ ...d, defaultBrowserType: "chromium", channel: "msedge" });
+// Localmente usa o Edge do Windows; no CI (GitHub Actions) usa o Chromium do Playwright.
+const channel = process.env.CI ? undefined : "msedge";
+const asChromium = (d) => ({ ...d, defaultBrowserType: "chromium", channel });
 
 export default defineConfig({
 	testDir: "tests",
@@ -18,6 +19,6 @@ export default defineConfig({
 		{ name: "ipad-mini", use: asChromium(devices["iPad Mini"]) },
 		{ name: "ipad-pro-landscape", use: asChromium(devices["iPad Pro 11 landscape"]) },
 		{ name: "galaxy-tab", use: asChromium(devices["Galaxy Tab S4"]) },
-		{ name: "desktop", use: { ...devices["Desktop Edge"], channel: "msedge" } },
+		{ name: "desktop", use: { ...devices["Desktop Edge"], channel } },
 	],
 });

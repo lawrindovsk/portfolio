@@ -6,7 +6,8 @@
  *   Para testar outro horário: ?hora=20 (ou 6.5, 18, ...).
  * Tudo é feito com caixas simples do Three.js, sem modelos externos.
  */
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import * as THREE from "../vendor/three.module.js"; // Three.js 0.160 (cópia local, sem depender de CDN)
+import { PIXEL_ICONS, REACTIONS } from "./hero/pixel-icons.js";
 
 const container = document.getElementById("hero3d");
 const clockLabel = document.getElementById("skyClock");
@@ -401,34 +402,6 @@ if (container) {
 	   Reações ao carinho (clique/toque no Pyter)
 	   Cada clique seguido avança uma reação: feliz, coração, estrelinha, música, susto, amor.
 	   ========================================================= */
-	const PIXEL_ICONS = {
-		feliz: { colors: { y: "#ffd23f", k: "#222" }, rows: [
-			"..yyyyy..", ".yyyyyyy.", "yykyyykyy", "yykyyykyy", "yyyyyyyyy", "ykyyyyyky", "yykkkkkyy", ".yyyyyyy.", "..yyyyy..",
-		] },
-		coracao: { colors: { r: "#ff3b6b", w: "#ffd1dc" }, rows: [
-			".rr...rr.", "rwrr.rrrr", "rwrrrrrrr", "rrrrrrrrr", "rrrrrrrrr", ".rrrrrrr.", "..rrrrr..", "...rrr...", "....r....",
-		] },
-		estrela: { colors: { y: "#ffcf26", w: "#fff6c2" }, rows: [
-			"....y....", "....y....", "...yyy...", "yyyywyyyy", ".yyywyyy.", "..yyyyy..", "..yy.yy..", ".yy...yy.", ".y.....y.",
-		] },
-		musica: { colors: { k: "#3b3b8f" }, rows: [
-			"....kkkkk", "....kkkkk", "....k...k", "....k...k", "....k...k", ".kkkk.kkk", "kkkkkkkkk", "kkkk.kkkk", ".kk...kk.",
-		] },
-		susto: { colors: { r: "#ff4d4d" }, rows: [
-			"...rrr...", "...rrr...", "...rrr...", "...rrr...", "...rrr...", "....r....", ".........", "...rrr...", "...rrr...",
-		] },
-		amor: { colors: { r: "#ff3b6b", p: "#ff8fb1" }, rows: [
-			"rr.rr....", "rrrrr....", ".rrr.pp.p", "..r..pppp", ".....ppp.", "......p..", ".........", ".........", ".........",
-		] },
-	};
-	PIXEL_ICONS.duvida = { colors: { b: "#3b82f6" }, rows: [
-		"..bbbbb..", ".bb...bb.", ".bb...bb.", "......bb.", "....bbb..", "...bb....", "...bb....", ".........", "...bb....",
-	] };
-	// "zzz" enquanto dorme: Z grande embaixo, z pequeno subindo
-	PIXEL_ICONS.zzz = { colors: { z: "#5b6bd6", l: "#9aa6f0" }, rows: [
-		"......lll", ".......l.", "......lll", ".........", "zzzzz....", "...z.....", "..z......", ".z.......", "zzzzz....",
-	] };
-	const REACTIONS = ["feliz", "coracao", "estrela", "musica", "susto", "amor"];
 
 	// desenha o balão de fala em pixel art num canvas 24x24 (ampliado sem suavizar)
 	const bubbleTexture = (iconName) => {
