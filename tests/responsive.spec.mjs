@@ -48,9 +48,14 @@ test.describe("layout responsivo", () => {
 	test("seções na ordem certa", async ({ page }) => {
 		await page.goto("./");
 		const ids = await page.$$eval("main section[id]", (s) => s.map((x) => x.id).filter((id) => !["home", "intro"].includes(id)));
-		expect(ids).toEqual(["about", "experience", "skills", "projects", "certifications", "contact"]);
+		expect(ids).toEqual(["about", "skills", "projects", "certifications", "contact"]);
 		const nav = await page.$$eval("#navLinks a", (a) => a.map((x) => x.getAttribute("href")));
-		expect(nav).toEqual(["#home", "#about", "#experience", "#skills", "#projects", "#certifications", "#contact"]);
+		expect(nav).toEqual(["#home", "#about", "#skills", "#projects", "#certifications", "#contact"]);
+		// nenhum link interno aponta para uma seção que não existe
+		const broken = await page.$$eval('a[href^="#"]', (a) => a.map((x) => x.getAttribute("href")).filter((h) => h.length > 1 && !document.querySelector(h)));
+		expect(broken).toEqual([]);
+		const numbers = await page.$$eval("main .section-title .mono", (m) => m.map((x) => x.textContent));
+		expect(numbers).toEqual(["01.", "02.", "03.", "04.", "05."]);
 	});
 
 	test("menu de navegação funciona", async ({ page }) => {
@@ -66,6 +71,72 @@ test.describe("layout responsivo", () => {
 			await page.locator('#navLinks a[href="#certifications"]').click();
 		}
 		await expect(page.locator("#certifications h2")).toBeInViewport();
+	});
+});
+
+test.describe("skills", () => {
+	test("infraestrutura com os itens atualizados", async ({ page }) => {
+		await page.goto("./");
+		const chips = await page.locator(".skill-card").first().locator(".chips li").allTextContents();
+		expect(chips).toEqual(expect.arrayContaining(["Linux (CentOS/Ubuntu)", "Azure (Intune, Admin Center 365)", "NetBackup Veritas", "Kaspersky", "CrowdStrike"]));
+		const all = (await page.locator(".skill-card .chips li").allTextContents()).join("|");
+		expect(all).not.toMatch(/Clonezilla|Kaspersky \/ CrowdStrike|Backup \/ Veritas|RHEL/);
+	});
+});
+
+test.describe("Pyter (polaroids)", () => {
+	test("clicar na minha foto abre as fotos do Pyter com a apresentação", async ({ page }) => {
+		const errors = watchErrors(page);
+		await page.goto("./");
+		const photo = page.locator("#pyterOpen");
+		await photo.scrollIntoViewIfNeeded();
+		await expect(photo).toBeVisible();
+		await photo.click();
+		const dialog = page.locator("#pyterModal");
+		await expect(dialog).toBeVisible();
+		await expect(dialog.locator(".pyter-text")).toContainText("Esse é o Pyter, o cachorrinho em 3D que você viu no início do portfólio!");
+		await expect(dialog.locator(".pyter-text")).toContainText("ele é bagunceiro. kkkkkkkkk");
+		const polaroids = dialog.locator(".polaroid img");
+		await expect(polaroids).toHaveCount(2);
+		for (const img of await polaroids.all()) {
+			await expect.poll(() => img.evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
+		}
+		await page.waitForTimeout(500); // fim da animação de entrada
+
+		// cabe na tela, centralizado, e as duas polaroids ficam lado a lado sem sair do pop-up
+		const vp = page.viewportSize();
+		const box = await dialog.boundingBox();
+		expect(box.x).toBeGreaterThanOrEqual(0);
+		expect(box.x + box.width).toBeLessThanOrEqual(vp.width + 1);
+		expect(Math.abs(box.x + box.width / 2 - vp.width / 2), "centralizado na horizontal").toBeLessThan(4);
+		const [a, b] = await Promise.all((await dialog.locator(".polaroid").all()).map((p) => p.boundingBox()));
+		expect(Math.abs(a.y - b.y), "polaroids na mesma linha").toBeLessThan(40);
+		expect(a.x).toBeGreaterThanOrEqual(box.x - 8);
+		expect(b.x + b.width).toBeLessThanOrEqual(box.x + box.width + 8);
+
+		await page.keyboard.press("Escape");
+		await expect(dialog).toBeHidden();
+
+		// abre de novo e fecha pelo X e clicando fora
+		await photo.click();
+		await expect(dialog).toBeVisible();
+		await dialog.locator(".cert-modal-close").click();
+		await expect(dialog).toBeHidden();
+		await photo.click();
+		await expect(dialog).toBeVisible();
+		await page.waitForTimeout(500);
+		await page.mouse.click(4, 4);
+		await expect(dialog).toBeHidden();
+		expect(errors).toEqual([]);
+	});
+
+	test("foto é acessível pelo teclado", async ({ page }) => {
+		await page.goto("./");
+		const photo = page.locator("#pyterOpen");
+		await expect(photo).toHaveAccessibleName(/Pyter/);
+		await photo.focus();
+		await page.keyboard.press("Enter");
+		await expect(page.locator("#pyterModal")).toBeVisible();
 	});
 });
 
@@ -151,7 +222,7 @@ test.describe("certificações", () => {
 		// fecha também pelo X
 		await btn.click();
 		await expect(dialog).toBeVisible();
-		await page.locator(".cert-modal-close").click();
+		await dialog.locator(".cert-modal-close").click();
 		await expect(dialog).toBeHidden();
 	});
 });
