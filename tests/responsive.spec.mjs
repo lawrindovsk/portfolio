@@ -95,7 +95,7 @@ test.describe("Pyter (polaroids)", () => {
 		const dialog = page.locator("#pyterModal");
 		await expect(dialog).toBeVisible();
 		await expect(dialog.locator(".pyter-text")).toContainText("Esse é o Pyter, o cachorrinho em 3D que você viu no início do portfólio!");
-		await expect(dialog.locator(".pyter-text")).toContainText("ele é bagunceiro. kkkkkkkkk");
+		await expect(dialog.locator(".pyter-text")).toContainText("Não se deixe enganar pela fofura, ele é bagunceiro.");
 		const polaroids = dialog.locator(".polaroid img");
 		await expect(polaroids).toHaveCount(2);
 		for (const img of await polaroids.all()) {
