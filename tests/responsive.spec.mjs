@@ -130,6 +130,33 @@ test.describe("Pyter (polaroids)", () => {
 		expect(errors).toEqual([]);
 	});
 
+	test("carta do Pyter aparece inclinada atrás da minha foto", async ({ page }) => {
+		await page.goto("./");
+		const photo = page.locator("#pyterOpen");
+		await photo.scrollIntoViewIfNeeded();
+		const peek = photo.locator(".about-peek");
+		await expect.poll(() => peek.locator("img").evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
+		const angle = () => peek.evaluate((el) => {
+			const m = new DOMMatrix(getComputedStyle(el).transform);
+			return Math.round((Math.atan2(m.b, m.a) * 180) / Math.PI);
+		});
+		const touch = await page.evaluate(() => matchMedia("(hover: none)").matches);
+		if (touch) {
+			// sem hover: a carta já fica à mostra para convidar ao toque
+			expect(await angle()).toBeGreaterThan(3);
+		} else {
+			expect(await angle()).toBe(0);
+			await photo.hover();
+			await expect.poll(angle).toBeGreaterThan(5);
+			// fica por cima do texto ao lado, mas atrás da minha foto
+			const z = await page.evaluate(() => [".about-peek", ".about-photo-me"].map((s) => +getComputedStyle(document.querySelector(s)).zIndex));
+			expect(z[0]).toBeLessThan(z[1]);
+		}
+		// a carta não vaza para fora da tela
+		const box = await peek.boundingBox();
+		expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize().width);
+	});
+
 	test("foto é acessível pelo teclado", async ({ page }) => {
 		await page.goto("./");
 		const photo = page.locator("#pyterOpen");

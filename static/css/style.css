@@ -611,6 +611,9 @@ svg.fill {
 	font: inherit;
 	text-align: inherit;
 	cursor: pointer;
+	isolation: isolate;
+	/* a carta do Pyter passa por cima do texto ao lado quando sai */
+	z-index: 1;
 }
 
 .about-photo:focus-visible {
@@ -634,6 +637,7 @@ svg.fill {
 	color: #fff;
 	white-space: nowrap;
 	pointer-events: none;
+	z-index: 3;
 	transition: transform 0.4s var(--ease), background 0.3s;
 }
 
@@ -652,22 +656,62 @@ svg.fill {
 	border-radius: var(--radius);
 	transform: translate(16px, 16px);
 	transition: transform 0.4s var(--ease);
-	z-index: -1;
+	z-index: 0;
 }
 
-.about-photo img {
+.about-photo-me {
+	position: relative;
+	z-index: 2;
 	border-radius: var(--radius);
 	filter: grayscale(0.35) contrast(1.05);
 	transition: filter 0.4s, transform 0.4s var(--ease);
 }
 
-.about-photo:hover img {
+.about-photo:hover .about-photo-me,
+.about-photo:focus-visible .about-photo-me {
 	filter: none;
 	transform: translate(-4px, -4px);
 }
 
-.about-photo:hover::before {
+.about-photo:hover::before,
+.about-photo:focus-visible::before {
 	transform: translate(10px, 10px);
+}
+
+/* polaroid do Pyter escondida atrás da foto: sai de lado, inclinada, como uma carta */
+.about-peek {
+	position: absolute;
+	z-index: 1;
+	top: 6%;
+	right: 5%;
+	width: 58%;
+	padding: 7px 7px 24px;
+	background: #fbfaf6;
+	border-radius: 3px;
+	box-shadow: 0 16px 34px -14px rgba(0, 0, 0, 0.8);
+	transform-origin: bottom left;
+	transform: translate(0, 0) rotate(0);
+	transition: transform 0.5s var(--ease);
+	pointer-events: none;
+}
+
+.about-peek img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 1;
+	object-fit: cover;
+}
+
+.about-photo:hover .about-peek,
+.about-photo:focus-visible .about-peek {
+	transform: translate(44%, -14%) rotate(10deg);
+}
+
+/* no toque não existe hover: a carta já fica um pouco à mostra para convidar ao clique */
+@media (hover: none) {
+	.about-peek {
+		transform: translate(8%, -34%) rotate(7deg);
+	}
 }
 
 .about-text p {
