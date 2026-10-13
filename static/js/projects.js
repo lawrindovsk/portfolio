@@ -1,16 +1,14 @@
 /*
- * Lista de projetos exibidos no grid.
+ * Lista de projetos exibidos na seção "Projetos".
  * Para adicionar um projeto, copie um objeto e preencha os campos:
  *
  *   title       Nome do projeto
  *   description Uma ou duas frases: o problema e o que você entregou
- *   type        "pessoal", "cliente" ou "academico" (academico só exibe a tag, sem filtro)
+ *   type        "pessoal", "cliente" ou "academico"
  *   tags        Tecnologias usadas
- *   image       Caminho da imagem (ex.: "src/img/projetos/meu-projeto.png"). Opcional:
- *               sem imagem, o card mostra um placeholder com as iniciais.
  *   repo        Link do GitHub (opcional)
  *   demo        Link do site no ar (opcional)
- *   featured    true ocupa duas colunas no grid (use para os melhores)
+ *   featured    true marca o projeto como destaque (classe is-featured)
  */
 const PROJECTS = [
 	{
@@ -26,7 +24,6 @@ const PROJECTS = [
 			"Docker",
 			"Swagger"
 		],
-		image: "",
 		repo: "https://github.com/lawrindovsk/java_springbootApiRestFull_Delivery",
 		demo: "",
 		featured: true,
@@ -42,7 +39,6 @@ const PROJECTS = [
 			"GLPI API",
 			"REST"
 		],
-		image: "",
 		repo: "https://github.com/lawrindovsk/testingMCP_gemini_Glpi",
 		demo: "",
 		featured: true,
@@ -56,7 +52,6 @@ const PROJECTS = [
 			"CSS",
 			"JavaScript"
 		],
-		image: "",
 		repo: "https://github.com/Leon16x8/saudedoidoso",
 		demo: "",
 		featured: false,
@@ -71,7 +66,6 @@ const PROJECTS = [
 			"I2C",
 			"Wokwi"
 		],
-		image: "",
 		repo: "https://github.com/lawrindovsk/marcacaoPonto_arduino",
 		demo: "https://wokwi.com/projects/448820197261540353",
 		featured: false,
@@ -85,7 +79,6 @@ const PROJECTS = [
 			"CSS",
 			"JavaScript"
 		],
-		image: "",
 		repo: "",
 		demo: "",
 		featured: false,
@@ -100,7 +93,6 @@ const PROJECTS = [
 			"JavaScript",
 			"Three.js"
 		],
-		image: "",
 		repo: "https://github.com/lawrindovsk/portfolio",
 		demo: "",
 		featured: false,
@@ -114,7 +106,6 @@ const PROJECTS = [
 			".NET",
 			"Regex"
 		],
-		image: "",
 		repo: "https://github.com/lawrindovsk/HTMLEditor",
 		demo: "",
 		featured: false,
