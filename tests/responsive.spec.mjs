@@ -5,7 +5,7 @@ const watchErrors = (page) => {
 	const errors = [];
 	page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
 	page.on("console", (m) => m.type() === "error" && !/simpleicons|Failed to load resource/.test(m.text()) && errors.push(`console: ${m.text()}`));
-	page.on("response", (r) => r.url().startsWith("http://localhost") && r.status() >= 400 && errors.push(`${r.status()} ${r.url()}`));
+	page.on("response", (r) => r.status() >= 400 && !/fonts.g|simpleicons/.test(r.url()) && errors.push(`${r.status()} ${r.url()}`));
 	return errors;
 };
 
@@ -14,7 +14,7 @@ const isMobileWidth = (page) => page.viewportSize().width <= 768;
 test.describe("layout responsivo", () => {
 	test("carrega sem erros e sem rolagem horizontal", async ({ page }) => {
 		const errors = watchErrors(page);
-		await page.goto("/");
+		await page.goto("./");
 		await page.waitForLoadState("networkidle");
 		// percorre a página inteira para disparar os reveals
 		await page.evaluate(async () => {
@@ -46,15 +46,20 @@ test.describe("layout responsivo", () => {
 	});
 
 	test("seções na ordem certa", async ({ page }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const ids = await page.$$eval("main section[id]", (s) => s.map((x) => x.id).filter((id) => !["home", "intro"].includes(id)));
-		expect(ids).toEqual(["about", "experience", "skills", "projects", "certifications", "contact"]);
+		expect(ids).toEqual(["about", "skills", "projects", "certifications", "contact"]);
 		const nav = await page.$$eval("#navLinks a", (a) => a.map((x) => x.getAttribute("href")));
-		expect(nav).toEqual(["#home", "#about", "#experience", "#skills", "#projects", "#certifications", "#contact"]);
+		expect(nav).toEqual(["#home", "#about", "#skills", "#projects", "#certifications", "#contact"]);
+		// nenhum link interno aponta para uma seção que não existe
+		const broken = await page.$$eval('a[href^="#"]', (a) => a.map((x) => x.getAttribute("href")).filter((h) => h.length > 1 && !document.querySelector(h)));
+		expect(broken).toEqual([]);
+		const numbers = await page.$$eval("main .section-title .mono", (m) => m.map((x) => x.textContent));
+		expect(numbers).toEqual(["01.", "02.", "03.", "04.", "05."]);
 	});
 
 	test("menu de navegação funciona", async ({ page }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const toggle = page.locator("#navToggle");
 		if (isMobileWidth(page)) {
 			await expect(toggle).toBeVisible();
@@ -69,14 +74,107 @@ test.describe("layout responsivo", () => {
 	});
 });
 
+test.describe("skills", () => {
+	test("infraestrutura com os itens atualizados", async ({ page }) => {
+		await page.goto("./");
+		const chips = await page.locator(".skill-card").first().locator(".chips li").allTextContents();
+		expect(chips).toEqual(expect.arrayContaining(["Linux (CentOS/Ubuntu)", "Azure (Intune, Admin Center 365)", "NetBackup Veritas", "Kaspersky", "CrowdStrike"]));
+		const all = (await page.locator(".skill-card .chips li").allTextContents()).join("|");
+		expect(all).not.toMatch(/Clonezilla|Kaspersky \/ CrowdStrike|Backup \/ Veritas|RHEL/);
+	});
+});
+
+test.describe("Pyter (polaroids)", () => {
+	test("clicar na minha foto abre as fotos do Pyter com a apresentação", async ({ page }) => {
+		const errors = watchErrors(page);
+		await page.goto("./");
+		const photo = page.locator("#pyterOpen");
+		await photo.scrollIntoViewIfNeeded();
+		await expect(photo).toBeVisible();
+		await photo.click();
+		const dialog = page.locator("#pyterModal");
+		await expect(dialog).toBeVisible();
+		await expect(dialog.locator(".pyter-text")).toContainText("Esse é o Pyter, o cachorrinho em 3D que você viu no início do portfólio!");
+		await expect(dialog.locator(".pyter-text")).toContainText("ele é bagunceiro. kkkkkkkkk");
+		const polaroids = dialog.locator(".polaroid img");
+		await expect(polaroids).toHaveCount(2);
+		for (const img of await polaroids.all()) {
+			await expect.poll(() => img.evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
+		}
+		await page.waitForTimeout(500); // fim da animação de entrada
+
+		// cabe na tela, centralizado, e as duas polaroids ficam lado a lado sem sair do pop-up
+		const vp = page.viewportSize();
+		const box = await dialog.boundingBox();
+		expect(box.x).toBeGreaterThanOrEqual(0);
+		expect(box.x + box.width).toBeLessThanOrEqual(vp.width + 1);
+		expect(Math.abs(box.x + box.width / 2 - vp.width / 2), "centralizado na horizontal").toBeLessThan(4);
+		const [a, b] = await Promise.all((await dialog.locator(".polaroid").all()).map((p) => p.boundingBox()));
+		expect(Math.abs(a.y - b.y), "polaroids na mesma linha").toBeLessThan(40);
+		expect(a.x).toBeGreaterThanOrEqual(box.x - 8);
+		expect(b.x + b.width).toBeLessThanOrEqual(box.x + box.width + 8);
+
+		await page.keyboard.press("Escape");
+		await expect(dialog).toBeHidden();
+
+		// abre de novo e fecha pelo X e clicando fora
+		await photo.click();
+		await expect(dialog).toBeVisible();
+		await dialog.locator(".cert-modal-close").click();
+		await expect(dialog).toBeHidden();
+		await photo.click();
+		await expect(dialog).toBeVisible();
+		await page.waitForTimeout(500);
+		await page.mouse.click(4, 4);
+		await expect(dialog).toBeHidden();
+		expect(errors).toEqual([]);
+	});
+
+	test("carta do Pyter aparece inclinada atrás da minha foto", async ({ page }) => {
+		await page.goto("./");
+		const photo = page.locator("#pyterOpen");
+		await photo.scrollIntoViewIfNeeded();
+		const peek = photo.locator(".about-peek");
+		await expect.poll(() => peek.locator("img").evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
+		const angle = () => peek.evaluate((el) => {
+			const m = new DOMMatrix(getComputedStyle(el).transform);
+			return Math.round((Math.atan2(m.b, m.a) * 180) / Math.PI);
+		});
+		const touch = await page.evaluate(() => matchMedia("(hover: none)").matches);
+		if (touch) {
+			// sem hover: a carta já fica à mostra para convidar ao toque
+			expect(await angle()).toBeGreaterThan(3);
+		} else {
+			expect(await angle()).toBe(0);
+			await photo.hover();
+			await expect.poll(angle).toBeGreaterThan(5);
+			// fica por cima do texto ao lado, mas atrás da minha foto
+			const z = await page.evaluate(() => [".about-peek", ".about-photo-me"].map((s) => +getComputedStyle(document.querySelector(s)).zIndex));
+			expect(z[0]).toBeLessThan(z[1]);
+		}
+		// a carta não vaza para fora da tela
+		const box = await peek.boundingBox();
+		expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize().width);
+	});
+
+	test("foto é acessível pelo teclado", async ({ page }) => {
+		await page.goto("./");
+		const photo = page.locator("#pyterOpen");
+		await expect(photo).toHaveAccessibleName(/Pyter/);
+		await photo.focus();
+		await page.keyboard.press("Enter");
+		await expect(page.locator("#pyterModal")).toBeVisible();
+	});
+});
+
 test.describe("CV", () => {
 	test("botão Ver CV abre o PDF atual em nova aba", async ({ page, request }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const cv = page.getByRole("link", { name: /Ver CV/ });
 		await expect(cv).toBeVisible();
 		await expect(cv).toHaveAttribute("target", "_blank");
 		const href = await cv.getAttribute("href");
-		const res = await request.get(`/${href}`);
+		const res = await request.get(`./${href}`);
 		expect(res.status(), href).toBe(200);
 		expect((await res.body()).subarray(0, 5).toString()).toBe("%PDF-");
 	});
@@ -84,7 +182,7 @@ test.describe("CV", () => {
 
 test.describe("projetos", () => {
 	test("lista sem filtros, com todos os projetos e links válidos", async ({ page }) => {
-		await page.goto("/");
+		await page.goto("./");
 		await expect(page.locator(".filter")).toHaveCount(0);
 		const rows = page.locator("#projectsGrid .project-row");
 		await expect(rows).toHaveCount(7);
@@ -106,7 +204,7 @@ test.describe("projetos", () => {
 
 test.describe("certificações", () => {
 	test("logos, botões e selo 'em breve'", async ({ page }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const cards = page.locator(".cert-card");
 		await expect(cards).toHaveCount(9);
 		await expect(page.locator(".cert-card .cert-logo")).toHaveCount(9);
@@ -120,14 +218,14 @@ test.describe("certificações", () => {
 	});
 
 	test("todas as imagens de certificado existem", async ({ page, request }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const srcs = await page.$$eval("[data-cert]", (a) => a.map((x) => x.dataset.cert));
 		expect(srcs.length).toBe(5);
-		for (const s of srcs) expect((await request.get(`/${s}`)).status(), s).toBe(200);
+		for (const s of srcs) expect((await request.get(`./${s}`)).status(), s).toBe(200);
 	});
 
 	test("pop-up abre centralizado, mostra a imagem e fecha", async ({ page }) => {
-		await page.goto("/");
+		await page.goto("./");
 		const btn = page.locator('[data-cert-title="IT Essentials"]');
 		await btn.scrollIntoViewIfNeeded();
 		await btn.click();
@@ -151,14 +249,14 @@ test.describe("certificações", () => {
 		// fecha também pelo X
 		await btn.click();
 		await expect(dialog).toBeVisible();
-		await page.locator(".cert-modal-close").click();
+		await dialog.locator(".cert-modal-close").click();
 		await expect(dialog).toBeHidden();
 	});
 });
 
 test.describe("Pyter (cena 3D)", () => {
 	const ready = async (page, hora) => {
-		await page.goto(`/?debug&hora=${hora}`);
+		await page.goto(`./?debug&hora=${hora}`);
 		await page.waitForFunction(() => window.pyter && window.pyter.task() !== undefined);
 		await page.waitForTimeout(1200);
 	};

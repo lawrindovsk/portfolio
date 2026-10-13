@@ -10,7 +10,6 @@ import * as THREE from "../vendor/three.module.js"; // Three.js 0.160 (cópia lo
 import { PIXEL_ICONS, REACTIONS } from "./hero/pixel-icons.js";
 
 const container = document.getElementById("hero3d");
-const clockLabel = document.getElementById("skyClock");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 if (container) {
@@ -1096,7 +1095,6 @@ if (container) {
 
 	let hourNow = Number.isFinite(forcedHour) ? forcedHour : spTime();
 	let night = 0;
-	const fmt = (h) => `${String(Math.floor(h) % 24).padStart(2, "0")}:${String(Math.floor((h % 1) * 60)).padStart(2, "0")}`;
 
 	const applySky = () => {
 		const h = hourNow;
@@ -1129,7 +1127,6 @@ if (container) {
 			bulb.material.emissiveIntensity = night * 1.4;
 			l.intensity = night * 14;
 		}
-		if (clockLabel) clockLabel.textContent = `São Paulo · ${fmt(h)} · ${day > 0.6 ? "dia" : night > 0.6 ? "noite" : h < 12 ? "amanhecer" : "entardecer"}`;
 	};
 	applySky();
 	setInterval(() => {

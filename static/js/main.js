@@ -59,7 +59,7 @@
 
 
 	// Brilho que segue o mouse e leve inclinação 3D nos cards
-	const hoverCards = ".project-card, .skill-card, .cert-card";
+	const hoverCards = ".skill-card, .cert-card";
 	document.addEventListener("pointermove", (e) => {
 		const card = e.target.closest?.(hoverCards);
 		if (!card) return;
@@ -117,7 +117,7 @@
 
 	/* ---------- Efeito de digitação ---------- */
 	const typed = document.getElementById("typed");
-	const roles = ["Suporte & Infraestrutura", "Desenvolvedor em formação", "Engenharia da Computação"];
+	const roles = ["Infraestrutura", "Desenvolvedor", "Engenharia da Computação"];
 
 	if (reduceMotion) {
 		typed.textContent = roles[0];
@@ -187,25 +187,33 @@
 		});
 
 		// Fecha com animação de saída (Esc, botão X ou clique fora)
-		const closeCert = () => {
-			if (!certModal.open || certModal.classList.contains("is-closing")) return;
-			if (reduceMotion) return certModal.close();
-			certModal.classList.add("is-closing");
-			certModal.addEventListener(
-				"animationend",
-				() => {
-					certModal.close();
-					certModal.classList.remove("is-closing");
-				},
-				{ once: true }
-			);
+		const setupModal = (modal) => {
+			const close = () => {
+				if (!modal.open || modal.classList.contains("is-closing")) return;
+				if (reduceMotion) return modal.close();
+				modal.classList.add("is-closing");
+				modal.addEventListener(
+					"animationend",
+					() => {
+						modal.close();
+						modal.classList.remove("is-closing");
+					},
+					{ once: true }
+				);
+			};
+			modal.addEventListener("cancel", (e) => {
+				e.preventDefault();
+				close();
+			});
+			modal.querySelector(".cert-modal-close").addEventListener("click", close);
+			modal.addEventListener("click", (e) => e.target === modal && close());
 		};
-		certModal.addEventListener("cancel", (e) => {
-			e.preventDefault();
-			closeCert();
-		});
-		certModal.querySelector(".cert-modal-close").addEventListener("click", closeCert);
-		certModal.addEventListener("click", (e) => e.target === certModal && closeCert());
+		setupModal(certModal);
+
+	/* ---------- Pyter: polaroids ao clicar na minha foto ---------- */
+		const pyterModal = document.getElementById("pyterModal");
+		setupModal(pyterModal);
+		document.getElementById("pyterOpen").addEventListener("click", () => pyterModal.showModal());
 
 		/* ---------- Diversos ---------- */
 	document.getElementById("year").textContent = new Date().getFullYear();

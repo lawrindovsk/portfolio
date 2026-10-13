@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Gustavo Laurindo | Portfólio</title>
+		<title>Gustavo Laurindo - Portfólio</title>
 		<meta
 			name="description"
 			content="Portfólio de Gustavo Laurindo — Suporte, Infraestrutura e Desenvolvimento. Projetos pessoais e para clientes."
@@ -40,7 +40,6 @@
 				<ul class="nav-links" id="navLinks">
 					<li><a href="#home" class="nav-link">Início</a></li>
 					<li><a href="#about" class="nav-link">Sobre</a></li>
-					<li><a href="#experience" class="nav-link">Experiência</a></li>
 					<li><a href="#skills" class="nav-link">Skills</a></li>
 					<li><a href="#projects" class="nav-link">Projetos</a></li>
 					<li><a href="#certifications" class="nav-link">Certificações</a></li>
@@ -73,15 +72,14 @@
 							<span id="typed"></span><span class="caret" aria-hidden="true"></span>
 						</p>
 						<p class="hero-desc reveal" style="--delay: 0.3s">
-							Da infraestrutura ao código: uso minha experiência em suporte, redes e servidores
-							para construir soluções web que funcionam de verdade, para mim e para clientes.
+							Uso minha experiência na área de tecnologia
+							para construir soluções que funcionam de verdade, para mim e para todos!
 						</p>
 
 						<div class="hero-cta reveal" style="--delay: 0.4s">
-							<a href="#projects" class="btn btn-primary">Ver projetos</a>
 							<a
 								href="src/docs/Curriculum%20-%20Gustavo%20Laurindo%20dos%20Santos.pdf"
-								class="btn btn-ghost"
+								class="btn btn-primary"
 								target="_blank"
 								rel="noopener"
 							>
@@ -119,9 +117,14 @@
 					<h2 class="section-title reveal"><span class="mono">01.</span> Sobre mim</h2>
 
 					<div class="about-grid">
-						<div class="about-photo reveal">
-							<img src="src/img/profile.jpeg" alt="Foto de Gustavo Laurindo" width="800" height="800" loading="lazy" />
-						</div>
+						<button type="button" class="about-photo reveal" id="pyterOpen" aria-haspopup="dialog" aria-controls="pyterModal">
+							<span class="about-peek" aria-hidden="true">
+								<img src="static/img/pyter/pyter-peek.webp" alt="" width="420" height="420" loading="lazy" />
+							</span>
+							<img class="about-photo-me" src="src/img/profile.jpeg" alt="Foto de Gustavo Laurindo" width="800" height="800" loading="lazy" />
+							<span class="about-photo-hint" aria-hidden="true">🐾 conheça o Pyter</span>
+							<span class="sr-only">Conhecer o Pyter, meu cachorro</span>
+						</button>
 
 						<div class="about-text">
 							<p class="reveal">
@@ -129,13 +132,13 @@
 								de vez nesse mundo que sempre prendeu minha atenção por horas.
 							</p>
 							<p class="reveal">
-								Hoje sou <strong>Analista de Tecnologia</strong>, atuei sendo responsável por
-								Google Workspace, Active-Directory, ITSM, suporte e infraestrutura de TI no geral.
-								Abaixo, você pode ver meus projetos, certificações e experiência profissional.
+								Hoje atuo na área de <strong>infraestrutura de TI</strong>, sendo responsável pelo ambiente
+								no geral, e quero evoluir minha carreira profissional, adquirindo conhecimento e desenvolvendo soluções.<br />
+								Abaixo, você pode ver minhas skills, projetos e certificações.
 							</p>
 							<p class="reveal">
 								Em paralelo, curso <strong>Engenharia da Computação</strong> e estou
-								mergulhando no desenvolvimento, já tenho experiência com JavaScript, C#, Python, Java (Spring Boot) e SQL, espero continuar evoluindo!
+								mergulhando no desenvolvimento, já tenho experiência com programação e quero continuar aprendendo.
 								Acredito que a tecnologia tem o poder de transformar o mundo quando usada do jeito
 								certo, e quero fazer parte disso.
 							</p>
@@ -150,73 +153,10 @@
 				</div>
 			</section>
 
-			<!-- ============ EXPERIÊNCIA ============ -->
-			<section class="section section-alt" id="experience">
-				<div class="container">
-					<h2 class="section-title reveal"><span class="mono">02.</span> Experiência</h2>
-
-					<ol class="timeline">
-						<li class="timeline-item reveal">
-							<span class="timeline-date">05/2026 — Atual</span>
-							<h3>Analista de Tecnologia <span>@ Grupo Comporte</span></h3>
-							<p>
-								Responsável pela parte técnica dos ambientes Google Workspace (Admin Console), GLPI e infraestrutura de TI.
-								Administração de roteamento de e-mails, Drives Compartilhados, licenças e auditoria, com 2FA/MFA e resposta a
-								incidentes de phishing. Gestão de ITSM com ITIL, incluindo gestão de incidentes, requisições e Change Management.
-								Automação com Apps Script (Sheets como banco de dados), agentes com n8n, uso de IA (Gemini) e relatórios de
-								desempenho e auditoria de mudanças.
-							</p>
-						</li>
-						<li class="timeline-item reveal">
-							<span class="timeline-date">05/2025 — 05/2026</span>
-							<h3>Analista de Suporte JR <span>@ Stefanini IT Solutions (cliente Grupo Comporte)</span></h3>
-							<p>
-								Atendimento técnico N1/N2 presencial e remoto em nível Brasil, com foco em suporte e infraestrutura.
-								Administração de Google Workspace, Active Directory, 2FA/MFA e recuperação de dados. Mitigação de phishing e
-								análise de alertas de login, endpoints com Kaspersky e CrowdStrike, automação de imagens com ferramentas Dell
-								e documentação de chamados no GLPI.
-							</p>
-						</li>
-						<li class="timeline-item reveal">
-							<span class="timeline-date">01/2025 — 04/2025</span>
-							<h3>Suporte Técnico <span>@ Tecnocomp Tecnologia e Serviços</span></h3>
-							<p>
-								Técnico alocado nos clientes Mercedes-Benz do Brasil e Wheaton Brasil. Rollout de equipamentos, Active
-								Directory, helpdesk N1/N2 via ServiceNow e GLPI, clonagem de imagens e migração de sistemas.
-							</p>
-						</li>
-						<li class="timeline-item reveal">
-							<span class="timeline-date">06/2023 — 12/2024</span>
-							<h3>Auxiliar de Informática <span>@ Atacadão</span></h3>
-							<p>
-								CPD em equipe de 4 pessoas: servidores Windows (AD) e Linux via SSH, sistemas NF-e/NFC-e,
-								racks Lenovo/IBM, backup em fita com Veritas NetBackup e suporte N1 para a loja.
-							</p>
-						</li>
-						<li class="timeline-item reveal">
-							<span class="timeline-date">02/2023 — 05/2023</span>
-							<h3>Jovem Aprendiz <span>@ Action Line</span></h3>
-							<p>Programa de aprendizagem em meio período, primeira experiência profissional.</p>
-						</li>
-						<li class="timeline-item reveal">
-							<span class="timeline-date">2024 — 2028</span>
-							<h3>Engenharia da Computação <span>@ Universidade São Judas Tadeu</span></h3>
-							<p>Cursando.</p>
-						</li>
-						<li class="timeline-item reveal">
-							<span class="timeline-date">2021 — 2023 · Concluído</span>
-							<h3>Técnico em Informática <span>@ SENAC</span></h3>
-							<p>Curso técnico concluído, base em redes, hardware, sistemas operacionais e programação.</p>
-						</li>
-					</ol>
-
-				</div>
-			</section>
-
 			<!-- ============ SKILLS ============ -->
-			<section class="section" id="skills">
+			<section class="section section-alt" id="skills">
 				<div class="container">
-					<h2 class="section-title reveal"><span class="mono">03.</span> Skills</h2>
+					<h2 class="section-title reveal"><span class="mono">02.</span> Skills</h2>
 
 					<div class="skills-grid">
 						<article class="skill-card reveal">
@@ -225,9 +165,9 @@
 							</div>
 							<h3>Infraestrutura &amp; Redes</h3>
 							<ul class="chips">
-								<li>Active Directory</li><li>Linux (RHEL/Ubuntu)</li><li>Windows Server</li>
-								<li>Google Workspace Admin</li><li>Redes Cisco</li><li>Backup / Veritas</li>
-									<li>Kaspersky / CrowdStrike</li><li>Clonezilla</li>
+								<li>Active Directory</li><li>Linux (CentOS/Ubuntu)</li><li>Windows Server</li>
+								<li>Google Workspace Admin</li><li>Azure (Intune, Admin Center 365)</li><li>Redes Cisco</li>
+								<li>NetBackup Veritas</li><li>Kaspersky</li><li>CrowdStrike</li>
 							</ul>
 						</article>
 
@@ -270,9 +210,9 @@
 			</section>
 
 			<!-- ============ PROJETOS ============ -->
-			<section class="section section-alt" id="projects">
+			<section class="section" id="projects">
 				<div class="container">
-					<h2 class="section-title reveal"><span class="mono">04.</span> Projetos</h2>
+					<h2 class="section-title reveal"><span class="mono">03.</span> Projetos</h2>
 					<p class="section-sub reveal">
 						Projetos pessoais, acadêmicos e trabalhos entregues para clientes.
 					</p>
@@ -283,9 +223,9 @@
 			</section>
 
 			<!-- ============ CERTIFICAÇÕES ============ -->
-			<section class="section" id="certifications">
+			<section class="section section-alt" id="certifications">
 				<div class="container">
-					<h2 class="section-title reveal"><span class="mono">05.</span> Certificações</h2>
+					<h2 class="section-title reveal"><span class="mono">04.</span> Certificações</h2>
 					<p class="section-sub reveal">Formação oficial reconhecida pelas instituições emissoras.</p>
 
 					<div class="cert-grid">
@@ -369,7 +309,7 @@
 			<!-- ============ CONTATO ============ -->
 			<section class="section contact" id="contact">
 				<div class="container contact-inner">
-					<h2 class="section-title center reveal"><span class="mono">06.</span> Contato</h2>
+					<h2 class="section-title center reveal"><span class="mono">05.</span> Contato</h2>
 					<p class="contact-title reveal">Vamos construir algo juntos?</p>
 					<p class="contact-desc reveal">
 						Tem um projeto em mente, uma vaga ou só quer trocar uma ideia sobre tecnologia?
@@ -396,6 +336,28 @@
 					<button type="button" class="cert-modal-close" aria-label="Fechar certificado">&times;</button>
 				</div>
 				<img id="certModalImg" src="" alt="" />
+			</div>
+		</dialog>
+		<dialog class="cert-modal pyter-modal" id="pyterModal" aria-labelledby="pyterModalTitle">
+			<div class="cert-modal-inner">
+				<div class="cert-modal-head">
+					<h3 id="pyterModalTitle">Esse é o Pyter 🐶</h3>
+					<button type="button" class="cert-modal-close" aria-label="Fechar">&times;</button>
+				</div>
+				<div class="polaroids">
+					<figure class="polaroid">
+						<img src="static/img/pyter/pyter-2.webp" alt="Pyter deitado no chão, olhando para a câmera" width="640" height="853" loading="lazy" />
+						<figcaption>pose de comportado</figcaption>
+					</figure>
+					<figure class="polaroid">
+						<img src="static/img/pyter/pyter-1.webp" alt="Pyter de pertinho, tomando sol" width="640" height="1138" loading="lazy" />
+						<figcaption>banho de sol ☀️</figcaption>
+					</figure>
+				</div>
+				<p class="pyter-text">
+					Esse é o Pyter, o cachorrinho em 3D que você viu no início do portfólio! Não se deixe enganar pela
+					fofura, ele é bagunceiro. kkkkkkkkk
+				</p>
 			</div>
 		</dialog>
 		<script src="static/js/projects.js"></script>
